@@ -5,14 +5,6 @@ import com.baomidou.mybatisplus.annotation.TableName;
 
 import java.io.Serializable;
 
-/**
- * <p>
- *
- * </p>
- *
- * @author sciuridae
- * @since 2020-06-02
- */
 @TableName("Scores")
 public class Scores implements Serializable {
 

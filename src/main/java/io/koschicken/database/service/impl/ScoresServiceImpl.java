@@ -10,14 +10,6 @@ import org.springframework.stereotype.Service;
 
 import java.util.List;
 
-/**
- * <p>
- * 服务实现类
- * </p>
- *
- * @author sciuridae
- * @since 2020-06-02
- */
 @Service
 public class ScoresServiceImpl extends ServiceImpl<ScoresMapper, Scores> implements ScoresService {
     @Autowired
@@ -98,5 +90,10 @@ public class ScoresServiceImpl extends ServiceImpl<ScoresMapper, Scores> impleme
     @Override
     public void refundWu(long qq, Integer refund) {
         scoresMapper.refundWu(qq, refund);
+    }
+
+    @Override
+    public Long findQQByNickname(String nickname) {
+        return scoresMapper.selectQQByNickname(nickname);
     }
 }

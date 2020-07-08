@@ -10,6 +10,7 @@ import org.apache.http.client.fluent.Request;
 import org.apache.http.util.EntityUtils;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.util.StringUtils;
 
 import java.io.IOException;
@@ -57,25 +58,31 @@ public class SetuUtils {
             JSONObject data = dataArray.getJSONObject(0);
             fillPixiv(pixiv, data);
         } else { // 没请求成功，去请求lolicon的API
-            String loliconApi = LOLICONAPI + "?apikey=" + princessConfig.getLoliconApiKey() + "&r18=2";
-            if (!StringUtils.isEmpty(tag)) {
-                loliconApi += "&tag=" + tag;
-            }
-            LOGGER.info("这次请求的Lolicon地址为： {}", loliconApi);
-            response = Request.Get(loliconApi).execute().handleResponse(myHandler);
-            jsonObject = JSON.parseObject(response);
-            Integer code = jsonObject.getInteger("code");
-            pixiv.setCode(code.toString());
-            if (code == 0) {
-                pixiv.setQuota(jsonObject.getInteger("quota"));
-                JSONArray dataArray = jsonObject.getJSONArray("data");
-                JSONObject data = dataArray.getJSONObject(0);
-                fillPixivLolicon(pixiv, data);
-            } else {
-                pixiv.setMsg(codeMap.get(code));
-            }
+            fetchFromLolicon(tag, myHandler, pixiv);
         }
         return pixiv;
+    }
+
+    private static void fetchFromLolicon(String tag, ResponseHandler<String> myHandler, Pixiv pixiv) throws IOException {
+        String response;
+        JSONObject jsonObject;
+        String loliconApi = LOLICONAPI + "?apikey=" + princessConfig.getLoliconApiKey() + "&r18=2";
+        if (!StringUtils.isEmpty(tag)) {
+            loliconApi += "&keyword=" + tag;
+        }
+        LOGGER.info("这次请求的Lolicon地址为： {}", loliconApi);
+        response = Request.Get(loliconApi).execute().handleResponse(myHandler);
+        jsonObject = JSON.parseObject(response);
+        Integer code = jsonObject.getInteger("code");
+        pixiv.setCode(code.toString());
+        if (code == 0) {
+            pixiv.setQuota(jsonObject.getInteger("quota"));
+            JSONArray dataArray = jsonObject.getJSONArray("data");
+            JSONObject data = dataArray.getJSONObject(0);
+            fillPixivLolicon(pixiv, data);
+        } else {
+            pixiv.setMsg(codeMap.get(code));
+        }
     }
 
     private static void fillPixiv(Pixiv pixiv, JSONObject data) {

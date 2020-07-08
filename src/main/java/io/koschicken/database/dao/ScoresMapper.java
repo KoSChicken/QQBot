@@ -10,14 +10,6 @@ import org.springframework.stereotype.Repository;
 
 import java.util.List;
 
-/**
- * <p>
- * Mapper 接口
- * </p>
- *
- * @author sciuridae
- * @since 2020-06-02
- */
 @Repository
 @Mapper
 public interface ScoresMapper extends BaseMapper<Scores> {
@@ -54,4 +46,7 @@ public interface ScoresMapper extends BaseMapper<Scores> {
 
     @Update("update Scores set score = score - #{refund} where QQ = #{qq}")
     void refundWu(@Param("qq") long qq, Integer refund);
+
+    @Select("select QQ from Scores where nickname = #{nickname}")
+    Long selectQQByNickname(@Param("nickname") String nickname);
 }

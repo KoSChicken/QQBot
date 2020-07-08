@@ -10,7 +10,9 @@ import com.forte.qqrobot.beans.types.KeywordMatchType;
 import com.forte.qqrobot.sender.MsgSender;
 import com.forte.qqrobot.utils.CQCodeUtil;
 import io.koschicken.bean.Pixiv;
+import io.koschicken.database.bean.Pic;
 import io.koschicken.database.bean.Scores;
+import io.koschicken.database.service.PicService;
 import io.koschicken.database.service.ScoresService;
 import org.apache.commons.io.FileUtils;
 import org.apache.commons.lang3.RandomUtils;
@@ -24,6 +26,8 @@ import java.io.File;
 import java.io.IOException;
 import java.io.InputStream;
 import java.net.URL;
+import java.util.Arrays;
+import java.util.Date;
 
 import static io.koschicken.Constants.*;
 import static io.koschicken.utils.SetuUtils.getSetu;
@@ -37,19 +41,22 @@ public class SetuListener {
     private static final String ARTIST_PREFIX = "https://www.pixiv.net/users/";
 
     @Autowired
-    ScoresService ScoresServiceImpl;
+    ScoresService scoresServiceImpl;
+
+    @Autowired
+    PicService picServiceImpl;
 
     @Listen(MsgGetTypes.groupMsg)
     @Filter(value = {"叫车.*", "车来.*", "来(.*?)[点丶份张幅](.*?)的?(|r18)[色瑟涩][图圖]"})
     public void jiaoche(GroupMsg msg, MsgSender sender) {
         // sender.SENDER.sendGroupMsg(msg.getGroupCode(), "别叫了，群主不喜欢");
-        Scores coin = ScoresServiceImpl.getById(msg.getCodeNumber());
+        Scores coin = scoresServiceImpl.getById(msg.getCodeNumber());
         if (coin == null) {
             Scores scores = new Scores();
             scores.setiSign(false);
             scores.setQQ(msg.getCodeNumber());
             scores.setScore(0);
-            ScoresServiceImpl.save(scores);
+            scoresServiceImpl.save(scores);
             sender.SENDER.sendGroupMsg(msg.getGroupCode(), coolQAt + msg.getQQCode() + "]" +
                     "你没钱了，请发送#签到获取今日5000币，如果已获取过请明天再来吧");
         } else if (coin.getScore() >= princessConfig.getSetuCoin()) {
@@ -72,25 +79,12 @@ public class SetuListener {
                 } else if (split.length > 1) {
                     tag = split[1];
                 }
-                if ("杏子".equals(tag)) {
-                    String AVATAR_API = "http://thirdqq.qlogo.cn/g?b=qq&nk=";
-                    String XINGZI = "670238987";
-                    String api = AVATAR_API + XINGZI + "&s=640";
-                    try {
-                        InputStream imageStream = Request.Get(api).execute().returnResponse().getEntity().getContent();
-                        File pic = new File(TEMP + "杏子.jpg");
-                        FileUtils.copyInputStreamToFile(imageStream, pic);
-                        CQCode cqCodeImage = CQCodeUtil.build().getCQCode_Image(pic.getAbsolutePath());
-                        LOGGER.info(pic.getAbsolutePath());
-                        String message = cqCodeImage.toString();
-                        sender.SENDER.sendGroupMsg(msg.getGroupCode(), message);
-                        boolean delete = pic.delete();
-                        LOGGER.info("文件删除成功了吗？{}", delete);
-                    } catch (IOException e) {
-                        e.printStackTrace();
-                    }
+                Long QQ = scoresServiceImpl.findQQByNickname(tag);
+                if (QQ != null) {
+                    groupMember(msg, sender, QQ);
                 } else {
-                    sendSetu sendSetu = new sendSetu(msg.getGroupCode(), sender, tag, num, type, coin, ScoresServiceImpl);
+                    SendSetu sendSetu =
+                            new SendSetu(msg.getGroupCode(), sender, tag, num, type, coin, scoresServiceImpl, picServiceImpl);
                     sendSetu.start();
                 }
             } else {
@@ -102,6 +96,24 @@ public class SetuListener {
         }
     }
 
+    private void groupMember(GroupMsg msg, MsgSender sender, Long QQ) {
+        String AVATAR_API = "http://thirdqq.qlogo.cn/g?b=qq&nk=";
+        String api = AVATAR_API + QQ.toString() + "&s=640";
+        try {
+            InputStream imageStream = Request.Get(api).execute().returnResponse().getEntity().getContent();
+            File pic = new File(TEMP + QQ.toString() + System.currentTimeMillis() + ".jpg");
+            FileUtils.copyInputStreamToFile(imageStream, pic);
+            CQCode cqCodeImage = CQCodeUtil.build().getCQCode_Image(pic.getAbsolutePath());
+            LOGGER.info(pic.getAbsolutePath());
+            String message = cqCodeImage.toString();
+            sender.SENDER.sendGroupMsg(msg.getGroupCode(), message);
+            boolean delete = pic.delete();
+            //LOGGER.info("文件删除成功了吗？{}", delete);
+        } catch (IOException e) {
+            e.printStackTrace();
+        }
+    }
+
     @Listen(MsgGetTypes.privateMsg)
     @Filter(value = {"图来！", "图来"}, keywordMatchType = KeywordMatchType.TRIM_EQUALS)
     public void config(PrivateMsg msg, MsgSender sender) {
@@ -109,13 +121,13 @@ public class SetuListener {
             sender.SENDER.sendGroupMsg(msg.getQQCode(), "机器人还不能发图片");
             return;
         }
-        Scores coin = ScoresServiceImpl.getById(msg.getCodeNumber());
+        Scores coin = scoresServiceImpl.getById(msg.getCodeNumber());
         if (coin == null) {
             Scores scores = new Scores();
             scores.setiSign(false);
             scores.setQQ(msg.getCodeNumber());
             scores.setScore(0);
-            ScoresServiceImpl.save(scores);
+            scoresServiceImpl.save(scores);
             sender.SENDER.sendPrivateMsg(msg.getQQCode(), "你没钱了，请发送#签到获取今日5000币，如果已获取过请明天再来吧");
         } else if (coin.getScore() >= princessConfig.getSetuCoin()) {
             // int num = RandomUtils.nextInt(1, 10);
@@ -127,14 +139,14 @@ public class SetuListener {
             if (split.length > 1) {
                 tag = split[2];
             }
-            sendSetu sendSetu = new sendSetu(msg.getQQ(), sender, tag, num, type, coin, ScoresServiceImpl);
+            SendSetu sendSetu = new SendSetu(msg.getQQ(), sender, tag, num, type, coin, scoresServiceImpl, picServiceImpl);
             sendSetu.start();
         } else {
             sender.SENDER.sendPrivateMsg(msg.getQQCode(), "你没钱了，请发送#签到获取今日5000币，如果已获取过请明天再来吧");
         }
     }
 
-    static class sendSetu extends Thread {
+    static class SendSetu extends Thread {
         private final String sendQQ;
         private final MsgSender sender;
         private final String tag;
@@ -142,9 +154,10 @@ public class SetuListener {
         private final Integer type;
         private final Scores coin;
         private final ScoresService scoresService;
+        private final PicService picService;
 
-        public sendSetu(String sendQQ, MsgSender sender, String tag, Integer num, Integer type,
-                        Scores coin, ScoresService scoresService) {
+        public SendSetu(String sendQQ, MsgSender sender, String tag, Integer num, Integer type,
+                        Scores coin, ScoresService scoresService, PicService picService) {
             this.sendQQ = sendQQ;
             this.sender = sender;
             this.tag = tag;
@@ -152,6 +165,7 @@ public class SetuListener {
             this.type = type;
             this.coin = coin;
             this.scoresService = scoresService;
+            this.picService = picService;
         }
 
         @Override
@@ -171,7 +185,7 @@ public class SetuListener {
                         imageUrl = new URL(filename);
                         pic = new File(TEMP + filename.substring(filename.lastIndexOf("/") + 1));
                     } else {
-                        imageUrl = new URL(PREFIX + filename);
+                        imageUrl = new URL(pixiv.getOriginal().replace("pximg.net", "pixiv.cat"));
                         pic = new File(TEMP + filename);
                     }
                     FileUtils.copyURLToFile(imageUrl, pic);
@@ -181,7 +195,8 @@ public class SetuListener {
                             pixiv.getTitle() + "\n" +
                             ARTWORK_PREFIX + pixiv.getArtwork() + "\n" +
                             pixiv.getAuthor() + "\n" +
-                            ARTIST_PREFIX + pixiv.getArtist();
+                            ARTIST_PREFIX + pixiv.getArtist() + "\n";
+                            // + "tags:" + Arrays.toString(pixiv.getTags());
                     if (fromLolicon) {
                         message += "\n" + "今日剩余额度：" + pixiv.getQuota();
                     }
