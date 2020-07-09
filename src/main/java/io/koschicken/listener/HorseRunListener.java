@@ -158,7 +158,7 @@ public class HorseRunListener {
     }
 
     @Listen(MsgGetTypes.groupMsg)
-    @Filter(value = {"下注[1-5]#[0-9]*"})
+    @Filter(value = {"押马[1-5]#[0-9]*"})
     public void buyHorse(GroupMsg msg, MsgSender sender) {
         if (maList.get(msg.getGroupCode()) == null) {
             sender.SENDER.sendGroupMsg(msg.getGroupCode(), "当前没有比赛，不能下注");
@@ -169,7 +169,7 @@ public class HorseRunListener {
             sender.SENDER.sendGroupMsg(msg.getGroupCode(), "赛程已经过半，不能再下注了");
             return;
         }
-        String re = "^下注([1-5])#([0-9]+)$";
+        String re = "^押马([1-5])#([0-9]+)$";
         String str = msg.getMsg();
         Pattern p = Pattern.compile(re);
         Matcher m = p.matcher(str);
@@ -200,6 +200,10 @@ public class HorseRunListener {
             integers[1] = coin;
             maList.get(msg.getGroupCode()).put(msg.getCodeNumber(), integers);
             sender.SENDER.sendGroupMsg(msg.getGroupCode(), "下注完成 加油啊" + no + "号");
+        }
+        int size = maList.get(msg.getGroupCode()).size();
+        if (size > 4) {
+            start(msg, sender);
         }
     }
 
