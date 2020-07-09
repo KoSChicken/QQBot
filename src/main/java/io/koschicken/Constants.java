@@ -83,7 +83,10 @@ public class Constants {
     public static boolean canSendImage = false;//这个机器人能不能发送图片的标记
     public static String ip;
     public static PrincessConfig princessConfig;
-    public static String[] emojis = new String[]{"\uD83E\uDD84", "\uD83D\uDC34", "\uD83D\uDC3A", "\uD83D\uDC02", "\uD83D\uDC04", "\uD83D\uDC0E", "\uD83D\uDC07", "\uD83D\uDC13", "\uD83E\uDD8F", "\uD83D\uDC29", "\uD83D\uDC2E", "\uD83D\uDC35", "\uD83D\uDC19", "\uD83D\uDC80", "\uD83D\uDC24", "\uD83D\uDC28", "\uD83D\uDC2E", "\uD83D\uDC14", "\uD83D\uDC38", "\uD83D\uDC7B", "\uD83D\uDC1B", "\uD83D\uDC20", "\uD83D\uDC36", "\uD83D\uDC2F", "  ", "\uD83D\uDEBD"};
+    public static String[] emojis =
+            new String[]{"🦄", "🐴", "🐺", "🐂", "🐄", "🐎", "🐇", "🐓", "🦏", "🐩", "🐮",
+                    "🐵", "🐙", "💀", "🐤", "🐨", "🐮", "🐔", "🐸", "👻", "🐛", "🐠", "🐶",
+                    "🐯", "🚽", "👨🏾‍", "🕊", "👴🏾", "🚗", "🦽", "🏎", "🚲", "🏍", "✈", "🔞", "  "};
     public static HorseEvent horseEvent;
 
     static {

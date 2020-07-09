@@ -37,36 +37,36 @@ public class SetuUtils {
     }
 
     public static Pixiv getSetu(String tag, Integer num, Integer type) throws IOException {
-        num = Objects.isNull(num) || num == 0 ? 1 : num;
-        String api = YUBAN1073API + "?num=" + num;
-        if (Objects.isNull(type)) {
-            type = 3;
-        }
-        api += "&type=" + type;
-        if (!StringUtils.isEmpty(tag)) {
-            api += "&tag=" + tag;
-        }
-        LOGGER.info("这次请求的地址为： {}", api);
+//        num = Objects.isNull(num) || num == 0 ? 1 : num;
+//        String api = YUBAN1073API + "?num=" + num;
+//        if (Objects.isNull(type)) {
+//            type = 3;
+//        }
+//        api += "&type=" + type;
+//        if (!StringUtils.isEmpty(tag)) {
+//            api += "&tag=" + tag;
+//        }
+//        LOGGER.info("这次请求的地址为： {}", api);
         ResponseHandler<String> myHandler = response -> EntityUtils.toString(response.getEntity(), Consts.UTF_8);
-        String response = Request.Get(api).execute().handleResponse(myHandler);
-        JSONObject jsonObject = JSON.parseObject(response);
+//        String response = Request.Get(api).execute().handleResponse(myHandler);
+//        JSONObject jsonObject = JSON.parseObject(response);
         Pixiv pixiv = new Pixiv();
-        pixiv.setCode(jsonObject.getString("code"));
-        pixiv.setMsg(jsonObject.getString("msg"));
-        if ("200".equals(jsonObject.getString("code"))) { // 请求成功
-            JSONArray dataArray = jsonObject.getJSONArray("data");
-            JSONObject data = dataArray.getJSONObject(0);
-            fillPixiv(pixiv, data);
-        } else { // 没请求成功，去请求lolicon的API
+//        pixiv.setCode(jsonObject.getString("code"));
+//        pixiv.setMsg(jsonObject.getString("msg"));
+//        if ("200".equals(jsonObject.getString("code"))) { // 请求成功
+//            JSONArray dataArray = jsonObject.getJSONArray("data");
+//            JSONObject data = dataArray.getJSONObject(0);
+//            fillPixiv(pixiv, data);
+//        } else { // 没请求成功，去请求lolicon的API
             fetchFromLolicon(tag, myHandler, pixiv);
-        }
+//        }
         return pixiv;
     }
 
     private static void fetchFromLolicon(String tag, ResponseHandler<String> myHandler, Pixiv pixiv) throws IOException {
         String response;
         JSONObject jsonObject;
-        String loliconApi = LOLICONAPI + "?apikey=" + princessConfig.getLoliconApiKey() + "&r18=2";
+        String loliconApi = LOLICONAPI + "?apikey=" + princessConfig.getLoliconApiKey() + "&r18=2&size1200=true";
         if (!StringUtils.isEmpty(tag)) {
             loliconApi += "&keyword=" + tag;
         }

@@ -26,8 +26,6 @@ import java.io.File;
 import java.io.IOException;
 import java.io.InputStream;
 import java.net.URL;
-import java.util.Arrays;
-import java.util.Date;
 
 import static io.koschicken.Constants.*;
 import static io.koschicken.utils.SetuUtils.getSetu;
@@ -63,7 +61,7 @@ public class SetuListener {
             // 发图
             int random = RandomUtils.nextInt(0, 100);
             LOGGER.info("这次roll的点数是： {}", random);
-            if (random >= 30) {
+            if (random >= 65) {
                 if (!canSendImage) {
                     sender.SENDER.sendGroupMsg(msg.getGroupCode(), "机器人还不能发图片");
                     return;
@@ -88,7 +86,7 @@ public class SetuListener {
                     sendSetu.start();
                 }
             } else {
-                sender.SENDER.sendGroupMsg(msg.getGroupCode(), "歇会，不要贪杯");
+                sender.SENDER.sendGroupMsg(msg.getGroupCode(), "年轻人要学会节制");
             }
         } else {
             sender.SENDER.sendGroupMsg(msg.getGroupCode(), coolQAt + msg.getQQCode() + "]" +
