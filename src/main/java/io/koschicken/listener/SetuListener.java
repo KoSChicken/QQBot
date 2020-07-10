@@ -13,7 +13,6 @@ import io.koschicken.database.bean.Scores;
 import io.koschicken.database.service.PicService;
 import io.koschicken.database.service.ScoresService;
 import org.apache.commons.io.FileUtils;
-import org.apache.commons.lang3.RandomUtils;
 import org.apache.commons.lang3.StringUtils;
 import org.apache.http.client.fluent.Request;
 import org.slf4j.Logger;
@@ -93,8 +92,6 @@ public class SetuListener {
                 if (QQ != null) {
                     groupMember(msg, sender, QQ);
                 } else {
-                    int random = RandomUtils.nextInt(0, 100);
-                    LOGGER.info("这次roll的点数是： {}", random);
                     if (!canSendImage) {
                         sender.SENDER.sendGroupMsg(msg.getGroupCode(), "机器人还不能发图片");
                         return;
@@ -259,16 +256,22 @@ public class SetuListener {
                     scoresService.updateById(coin);
                     for (Pixiv p : setu) {
                         String filename = p.getFileName();
-                        URL imageUrl;
                         File pic;
+                        // URL imageUrl;
+                        String imageUrl;
                         if (filename.contains("http")) {
-                            imageUrl = new URL(filename);
+                            // imageUrl = new URL(filename);
+                            imageUrl = filename;
                             pic = new File(TEMP + filename.substring(filename.lastIndexOf("/") + 1));
                         } else {
-                            imageUrl = new URL(p.getOriginal().replace("pximg.net", "pixiv.cat"));
+                            imageUrl = p.getOriginal().replace("pximg.net", "pixiv.cat");
                             pic = new File(TEMP + filename);
                         }
-                        FileUtils.copyURLToFile(imageUrl, pic);
+                        InputStream content = Request.Get(imageUrl)
+                                .setHeader("User-Agent", "Mozilla/5.0 (Windows; U; Windows NT 5.1; zh-CN; rv:1.9.0.3) Gecko/2008092417 Firefox/3.0.3")
+                                .execute().returnResponse().getEntity().getContent();
+                        FileUtils.copyInputStreamToFile(content, pic);
+                        // FileUtils.copyURLToFile(imageUrl, pic);
                         // 发送图片
                         CQCode cqCodeImage = CQCodeUtil.build().getCQCode_Image(pic.getAbsolutePath());
                         String message = cqCodeImage.toString() + "\n" +
