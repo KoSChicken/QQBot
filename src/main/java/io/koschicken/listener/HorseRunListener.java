@@ -6,7 +6,6 @@ import com.forte.qqrobot.beans.messages.msgget.GroupMsg;
 import com.forte.qqrobot.beans.messages.msgget.MsgGet;
 import com.forte.qqrobot.beans.messages.msgget.PrivateMsg;
 import com.forte.qqrobot.beans.messages.result.GroupMemberInfo;
-import com.forte.qqrobot.beans.messages.result.StrangerInfo;
 import com.forte.qqrobot.beans.messages.types.MsgGetTypes;
 import com.forte.qqrobot.beans.messages.types.PowerType;
 import com.forte.qqrobot.beans.types.KeywordMatchType;
@@ -220,19 +219,19 @@ public class HorseRunListener {
     @Filter(value = {"我有多少钱鸭老婆", "老婆我有多少钱", "我有多少钱", "我有多少钱老婆", "我还有多少钱", "余额"},
             keywordMatchType = KeywordMatchType.TRIM_EQUALS)
     public void mycoin(MsgGet msg, MsgSender sender) {
-        Scores byId;
+        Scores scores;
         GroupMsg groupMsg;
         PrivateMsg privateMsg;
         if (msg instanceof GroupMsg) {
             groupMsg = (GroupMsg) msg;
-            byId = scoresService.getById(groupMsg.getCodeNumber());
-            if (byId != null) {
-                if (byId.getiSign()) {
-                    sender.SENDER.sendGroupMsg(groupMsg.getGroupCode(),
-                            "[CQ:at,qq=" + groupMsg.getQQ() + "] 有" + byId.getScore() + "块钱");
+            scores = scoresService.getById(groupMsg.getCodeNumber());
+            if (scores != null) {
+                String isSign = scores.getiSign() ? "" : "，还没有签到哦";
+                if (scores.getScore() > 0) {
+                    sender.SENDER.sendGroupMsg(groupMsg.getGroupCode(), "[CQ:at,qq=" + groupMsg.getQQ() + "] 有"
+                            + scores.getScore() + "块钱" + isSign);
                 } else {
-                    sender.SENDER.sendGroupMsg(groupMsg.getGroupCode(),
-                            "[CQ:at,qq=" + groupMsg.getQQ() + "] 有" + byId.getScore() + "块钱，还没有签到哦");
+                    sender.SENDER.sendGroupMsg(groupMsg.getGroupCode(), "[CQ:at,qq=" + groupMsg.getQQ() + "] 你没钱，穷仔" + isSign);
                 }
             } else {
                 sender.SENDER.sendGroupMsg(groupMsg.getGroupCode(),
@@ -240,14 +239,11 @@ public class HorseRunListener {
             }
         } else {
             privateMsg = (PrivateMsg) msg;
-            byId = scoresService.getById(privateMsg.getCodeNumber());
+            scores = scoresService.getById(privateMsg.getCodeNumber());
 
-            if (byId != null) {
-                if (byId.getiSign()) {
-                    sender.SENDER.sendPrivateMsg(privateMsg.getQQCode(), "有" + byId.getScore() + "块钱");
-                } else {
-                    sender.SENDER.sendPrivateMsg(privateMsg.getQQCode(), byId.getScore() + "块钱，还没有签到哦");
-                }
+            if (scores != null) {
+                String isSign = scores.getiSign() ? "" : "，还没有签到哦";
+                sender.SENDER.sendPrivateMsg(privateMsg.getQQCode(), "有" + scores.getScore() + "块钱" + isSign);
             } else {
                 sender.SENDER.sendPrivateMsg(privateMsg.getQQCode(), "锅里没有一滴油");
             }

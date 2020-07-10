@@ -30,7 +30,7 @@ public class DiceListener {
     private static final HashMap<String, Boolean> progressMap = new HashMap<>(); // 骰子游戏状态
     private static final Logger LOGGER = LoggerFactory.getLogger(DiceListener.class);
     private static final int RATE_N = 2;
-    private static final int RATE_B = 50;
+    private static final int RATE_B = 34;
 
     static {
         typeList = new ArrayList<>();
@@ -111,6 +111,8 @@ public class DiceListener {
             list.add(no);
             list.add(String.valueOf(coin));
             diceMap.get(msg.getGroupCode()).put(msg.getCodeNumber(), list);
+            scores.setScore(scores.getScore() - coin);
+            ScoresServiceImpl.updateById(scores);
             sender.SENDER.sendGroupMsg(msg.getGroupCode(), "下注完成");
         }
         int size = diceMap.get(msg.getGroupCode()).size();
@@ -136,6 +138,24 @@ public class DiceListener {
         }
     }
 
+    @Listen(MsgGetTypes.groupMsg)
+    @Filter(value = "#豹？")
+    public void bao(GroupMsg msg, MsgSender sender) {
+        List<String> diceResult = new ArrayList<>();
+        boolean allSame = true; // 豹子flag
+        int sum = 0;
+        for (int i = 0; i < 3; i++) {
+            int roll = roll();
+            sum += roll;
+            diceResult.add(String.valueOf(roll));
+            if (i != 0 && roll != Integer.parseInt(diceResult.get(i - 1))) {
+                allSame = false;
+            }
+        }
+        String result = result(allSame, sum);
+        sender.SENDER.sendGroupMsg(msg.getGroupCode(), result.equals("豹子") ? "豹了" : "没豹");
+    }
+
     public void allClear(String groupQQ, String result) {
         Map<Long, List<String>> group = diceMap.get(groupQQ);
         Iterator<Long> iterator = group.keySet().iterator();
@@ -151,10 +171,6 @@ public class DiceListener {
                     rate = RATE_N;
                 }
                 byId.setScore((int) (byId.getScore() + Integer.parseInt(group.get(entry).get(1)) * rate));
-                list.add(byId);
-            } else {
-                Scores byId = ScoresServiceImpl.getById(entry);
-                byId.setScore(byId.getScore() - Integer.parseInt(group.get(entry).get(1)));
                 list.add(byId);
             }
         }
@@ -205,23 +221,6 @@ public class DiceListener {
             allClear(groupQQ, result); //收钱
         }
 
-        private int roll() {
-            return RandomUtils.nextInt(1, 7);
-        }
-
-        private String result(boolean allSame, int sum) {
-            if (allSame) {
-                return "豹子";
-            } else {
-                if (sum >= 4 && sum <= 10) {
-                    return "小";
-                } else if (sum >= 11 && sum <= 17) {
-                    return "大";
-                }
-                return "";
-            }
-        }
-
         private StringBuilder getWinners(String result) {
             Map<Long, List<String>> map = diceMap.get(groupQQ);
             List<Long> winner = new ArrayList<>();
@@ -243,6 +242,23 @@ public class DiceListener {
                 sb.append("押中🎲，赢得了奖金");
             }
             return sb;
+        }
+    }
+
+    private int roll() {
+        return RandomUtils.nextInt(1, 7);
+    }
+
+    private String result(boolean allSame, int sum) {
+        if (allSame) {
+            return "豹子";
+        } else {
+            if (sum >= 4 && sum <= 10) {
+                return "小";
+            } else if (sum >= 11 && sum <= 17) {
+                return "大";
+            }
+            return "";
         }
     }
 }
