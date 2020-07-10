@@ -6,7 +6,7 @@ import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.transaction.annotation.EnableTransactionManagement;
 
-@MapperScan("io.koschicken.dataBase.dao")
+@MapperScan("io.koschicken.database.dao")
 @EnableTransactionManagement
 @Configuration
 public class MyBatisPlusConfig {
