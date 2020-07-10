@@ -13,6 +13,7 @@ import io.koschicken.database.bean.Scores;
 import io.koschicken.database.service.PicService;
 import io.koschicken.database.service.ScoresService;
 import org.apache.commons.io.FileUtils;
+import org.apache.commons.lang3.RandomUtils;
 import org.apache.commons.lang3.StringUtils;
 import org.apache.http.client.fluent.Request;
 import org.slf4j.Logger;
@@ -41,6 +42,24 @@ public class SetuListener {
     private static final String ARTIST_PREFIX = "https://www.pixiv.net/users/";
     private static final int CD = 20;
     private static HashMap<String, LocalDateTime> coolDown;
+    private static HashMap<String, Integer> NUMBER;
+    static {
+        NUMBER = new HashMap<>();
+        NUMBER.put("一", 1);
+        NUMBER.put("二", 2);
+        NUMBER.put("俩", 2);
+        NUMBER.put("两", 2);
+        NUMBER.put("三", 3);
+        NUMBER.put("四", 4);
+        NUMBER.put("五", 5);
+        NUMBER.put("六", 6);
+        NUMBER.put("七", 7);
+        NUMBER.put("八", 8);
+        NUMBER.put("九", 9);
+        NUMBER.put("十", 10);
+        NUMBER.put("几", RandomUtils.nextInt(1, 4));
+    }
+
     @Autowired
     ScoresService scoresServiceImpl;
 
@@ -68,20 +87,31 @@ public class SetuListener {
                 int num = 1;
                 String tag = "";
                 boolean r18 = false;
+                String number = "";
                 while (m.find()) {
                     // 兼容原有的叫车功能
                     if (message.startsWith("叫车")) {
+                        number = m.group(2).trim();
                         try {
-                            num = Integer.parseInt(m.group(2).trim());
+                            if (NUMBER.get(number) == null) {
+                                num = Integer.parseInt(number);
+                            } else {
+                                num = NUMBER.get(number);
+                            }
                         } catch (NumberFormatException e) {
-                            LOGGER.info("数量不是数字，默认为1");
+                            LOGGER.info("不是数字，默认为1");
                         }
                         tag = m.group(1).trim();
                     } else {
                         try {
-                            num = Integer.parseInt(m.group(1).trim());
+                            number = m.group(1).trim();
+                            if (NUMBER.get(number) == null) {
+                                num = Integer.parseInt(number);
+                            } else {
+                                num = NUMBER.get(number);
+                            }
                         } catch (NumberFormatException e) {
-                            LOGGER.info("数量不是数字，默认为1");
+                            LOGGER.info("不是数字，默认为1");
                         }
                         tag = m.group(2).trim();
                     }
@@ -162,14 +192,35 @@ public class SetuListener {
                 int num = 1;
                 String tag = "";
                 boolean r18 = false;
+                String number = "";
                 while (m.find()) {
-                    try {
-                        num = Integer.parseInt(m.group(1));
-                    } catch (NumberFormatException e) {
-                        LOGGER.info("数量不是数字，默认为1");
+                    // 兼容原有的叫车功能
+                    if (message.startsWith("叫车")) {
+                        number = m.group(2).trim();
+                        try {
+                            if (NUMBER.get(number) == null) {
+                                num = Integer.parseInt(number);
+                            } else {
+                                num = NUMBER.get(number);
+                            }
+                        } catch (NumberFormatException e) {
+                            LOGGER.info("不是数字，默认为1");
+                        }
+                        tag = m.group(1).trim();
+                    } else {
+                        try {
+                            number = m.group(1).trim();
+                            if (NUMBER.get(number) == null) {
+                                num = Integer.parseInt(number);
+                            } else {
+                                num = NUMBER.get(number);
+                            }
+                        } catch (NumberFormatException e) {
+                            LOGGER.info("不是数字，默认为1");
+                        }
+                        tag = number;
                     }
-                    tag = m.group(2);
-                    r18 = !StringUtils.isEmpty(m.group(3));
+                    r18 = !StringUtils.isEmpty(m.group(3).trim());
                 }
                 // 发图
                 SendSetu sendSetu = new SendSetu(msg.getQQ(), sender, tag, num, r18, coin, scoresServiceImpl, picServiceImpl);
