@@ -16,6 +16,7 @@ import io.koschicken.bean.Horse;
 import io.koschicken.database.bean.Scores;
 import io.koschicken.database.service.ScoresService;
 import org.apache.commons.lang3.RandomUtils;
+import org.apache.commons.lang3.StringUtils;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -46,17 +47,21 @@ public class HorseRunListener {
     private BotManager botManager;
 
     @Listen(MsgGetTypes.groupMsg)
-    @Filter(value = "#退款.*")
+    @Filter(value = "退款(.*)")
     public void refundWu(GroupMsg msg, MsgSender sender) {
-        String[] split = msg.getMsg().split(" +");
-        if (split.length > 1) {
-            String refundStr = split[1];
-            int refund;
-            if (refundStr.length() > 8) {
-                refund = Integer.parseInt(refundStr.substring(0, 8));
-            } else {
-                refund = Integer.parseInt(refundStr);
+        String message = msg.getMsg();
+        String regex = "退款(.*)";
+        Pattern p = Pattern.compile(regex);
+        Matcher m = p.matcher(message);
+        int refund = 0;
+        while (m.find()) {
+            try {
+                refund = Integer.parseInt(m.group(1));
+            } catch (NumberFormatException e) {
+                LOGGER.info("数量不是数字，默认为0");
             }
+        }
+        if (refund != 0) {
             if (refund < 0) {
                 sender.SENDER.sendGroupMsg(msg.getGroupCode(), "退款数值不能为负数");
                 return;
