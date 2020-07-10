@@ -31,4 +31,6 @@ public interface ScoresService extends IService<Scores> {
     void refundWu(long qq, Integer refund);
 
     Long findQQByNickname(String nickname);
+
+    List<Scores> rank(String groupCode);
 }

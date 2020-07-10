@@ -21,6 +21,7 @@ public class Scores implements Serializable {
     private Integer live2 = 0;
     private Integer live3 = 0;
     private Boolean liveON = true;
+    private String groupCode;
 
     public Long getQQ() {
         return QQ;
@@ -78,6 +79,14 @@ public class Scores implements Serializable {
         this.liveON = liveON;
     }
 
+    public String getGroupCode() {
+        return groupCode;
+    }
+
+    public void setGroupCode(String groupCode) {
+        this.groupCode = groupCode;
+    }
+
     @Override
     public String toString() {
         return "Scores{" +
@@ -88,6 +97,7 @@ public class Scores implements Serializable {
                 ", live2=" + live2 +
                 ", live3=" + live3 +
                 ", liveON=" + liveON +
+                ", groupCode='" + groupCode + '\'' +
                 '}';
     }
 }

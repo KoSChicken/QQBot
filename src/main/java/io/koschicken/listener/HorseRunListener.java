@@ -5,6 +5,8 @@ import com.forte.qqrobot.anno.Listen;
 import com.forte.qqrobot.beans.messages.msgget.GroupMsg;
 import com.forte.qqrobot.beans.messages.msgget.MsgGet;
 import com.forte.qqrobot.beans.messages.msgget.PrivateMsg;
+import com.forte.qqrobot.beans.messages.result.GroupMemberInfo;
+import com.forte.qqrobot.beans.messages.result.StrangerInfo;
 import com.forte.qqrobot.beans.messages.types.MsgGetTypes;
 import com.forte.qqrobot.beans.messages.types.PowerType;
 import com.forte.qqrobot.beans.types.KeywordMatchType;
@@ -16,7 +18,6 @@ import io.koschicken.bean.Horse;
 import io.koschicken.database.bean.Scores;
 import io.koschicken.database.service.ScoresService;
 import org.apache.commons.lang3.RandomUtils;
-import org.apache.commons.lang3.StringUtils;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -39,7 +40,7 @@ public class HorseRunListener {
     private static final HashMap<String, Integer> progressList = new HashMap<>(); // 赛马进度
     private static final Logger LOGGER = LoggerFactory.getLogger(HorseRunListener.class);
     @Autowired
-    ScoresService ScoresServiceImpl;
+    ScoresService scoresService;
     /**
      * bot管理器
      */
@@ -66,7 +67,7 @@ public class HorseRunListener {
                 sender.SENDER.sendGroupMsg(msg.getGroupCode(), "退款数值不能为负数");
                 return;
             }
-            ScoresServiceImpl.refundWu(Long.parseLong(msg.getQQCode()), refund);
+            scoresService.refundWu(Long.parseLong(msg.getQQCode()), refund);
         } else {
             sender.SENDER.sendGroupMsg(msg.getGroupCode(), "不写金额退个吉尔");
             return;
@@ -78,7 +79,7 @@ public class HorseRunListener {
     @Filter(value = "#天降福利")
     public void allRich(GroupMsg msg, MsgSender sender) {
         if (princessConfig.getMasterQQ().equals(msg.getQQ())) {
-            ScoresServiceImpl.allRich();
+            scoresService.allRich();
             sender.SENDER.sendGroupMsg(msg.getGroupCode(), "所有人的钱包都增加了一万块钱");
         }
     }
@@ -95,7 +96,7 @@ public class HorseRunListener {
                 sender.SENDER.sendGroupMsg(msg.getGroupCode(), "没有金融危机袭击的目标");
                 return;
             }
-            ScoresServiceImpl.financialCrisis(Long.parseLong(target));
+            scoresService.financialCrisis(Long.parseLong(target));
             sender.SENDER.sendGroupMsg(msg.getGroupCode(), "[CQ:at,qq=" + target + "] 遭遇金融危机，财产减半。");
         }
     }
@@ -119,7 +120,7 @@ public class HorseRunListener {
     @Filter(value = {"#给xcw上供", "上供", "#上供", "签到", "#签到"}, keywordMatchType = KeywordMatchType.TRIM_EQUALS)
     public void sign(GroupMsg msg, MsgSender sender) {
         if (On.get(msg.getGroupCode()).isHorseSwitch()) {
-            Scores byId = ScoresServiceImpl.getById(msg.getCodeNumber());
+            Scores byId = scoresService.getById(msg.getCodeNumber());
             if (byId != null) {
                 if (byId.getiSign()) {
                     sender.SENDER.sendGroupMsg(msg.getGroupCode(), "[CQ:at,qq=" + msg.getQQ() +
@@ -128,7 +129,10 @@ public class HorseRunListener {
                 }
                 byId.setScore(byId.getScore() + signScore);
                 byId.setiSign(true);
-                ScoresServiceImpl.updateById(byId);
+                if (!byId.getGroupCode().contains(msg.getGroupCode())) {
+                    byId.setGroupCode(byId.getGroupCode() + ", " + msg.getGroupCode());
+                }
+                scoresService.updateById(byId);
                 sender.SENDER.sendGroupMsg(msg.getGroupCode(), "[CQ:at,qq=" + msg.getQQ() +
                         "] 签到成功，币+5000，现在币:" + byId.getScore());
             } else {
@@ -136,9 +140,9 @@ public class HorseRunListener {
                 byId.setQQ(msg.getCodeNumber());
                 byId.setiSign(true);
                 byId.setScore(signScore);
-                ScoresServiceImpl.save(byId);
-                sender.SENDER.sendGroupMsg(msg.getGroupCode(), "[CQ:at,qq=" + msg.getQQ() +
-                        "] 签到成功，币+5000");
+                byId.setGroupCode(msg.getGroupCode());
+                scoresService.save(byId);
+                sender.SENDER.sendGroupMsg(msg.getGroupCode(), "[CQ:at,qq=" + msg.getQQ() + "] 签到成功，币+5000");
             }
         }
     }
@@ -191,7 +195,7 @@ public class HorseRunListener {
             sender.SENDER.sendGroupMsg(msg.getGroupCode(), "反向下注不可取");
             return;
         }
-        Scores byId = ScoresServiceImpl.getById(msg.getCodeNumber());
+        Scores byId = scoresService.getById(msg.getCodeNumber());
         if (byId == null || byId.getScore() - coin < 0) {
             sender.SENDER.sendGroupMsg(msg.getGroupCode(), "没那么多可以下注的币");
             return;
@@ -221,7 +225,7 @@ public class HorseRunListener {
         PrivateMsg privateMsg;
         if (msg instanceof GroupMsg) {
             groupMsg = (GroupMsg) msg;
-            byId = ScoresServiceImpl.getById(groupMsg.getCodeNumber());
+            byId = scoresService.getById(groupMsg.getCodeNumber());
             if (byId != null) {
                 if (byId.getiSign()) {
                     sender.SENDER.sendGroupMsg(groupMsg.getGroupCode(),
@@ -236,7 +240,7 @@ public class HorseRunListener {
             }
         } else {
             privateMsg = (PrivateMsg) msg;
-            byId = ScoresServiceImpl.getById(privateMsg.getCodeNumber());
+            byId = scoresService.getById(privateMsg.getCodeNumber());
 
             if (byId != null) {
                 if (byId.getiSign()) {
@@ -248,6 +252,20 @@ public class HorseRunListener {
                 sender.SENDER.sendPrivateMsg(privateMsg.getQQCode(), "锅里没有一滴油");
             }
         }
+    }
+
+    @Listen(MsgGetTypes.groupMsg)
+    @Filter(value = {"#财富榜.*"}, at = true)
+    public void rank(GroupMsg msg, MsgSender sender) {
+        StringBuilder sb = new StringBuilder();
+        sb.append("群友财富榜\n");
+        List<Scores> list = scoresService.rank("%" + msg.getGroupCode() + "%");
+        for (int i = 0; i < list.size(); i++) {
+            GroupMemberInfo info = sender.GETTER.getGroupMemberInfo(msg.getGroupCode(), String.valueOf(list.get(i).getQQ()));
+            //LOGGER.info(info.getName());
+            sb.append(i + 1).append(". ").append(info.getCard()).append(" 余额：").append(list.get(i).getScore()).append("\n");
+        }
+        sender.SENDER.sendGroupMsg(msg.getGroupCode(), sb.toString().trim());
     }
 
     @Listen(MsgGetTypes.groupMsg)
@@ -325,16 +343,16 @@ public class HorseRunListener {
         while (iterator.hasNext()) {
             Long entry = iterator.next();
             if (group.get(entry)[0] == winner) {
-                Scores byId = ScoresServiceImpl.getById(entry);
+                Scores byId = scoresService.getById(entry);
                 byId.setScore((int) (byId.getScore() + group.get(entry)[1] * 1.5));
                 list.add(byId);
             } else {
-                Scores byId = ScoresServiceImpl.getById(entry);
+                Scores byId = scoresService.getById(entry);
                 byId.setScore(byId.getScore() - group.get(entry)[1]);
                 list.add(byId);
             }
         }
-        ScoresServiceImpl.updateBatchById(list);
+        scoresService.updateBatchById(list);
         maList.remove(groupQQ);
         progressList.remove(groupQQ);
     }

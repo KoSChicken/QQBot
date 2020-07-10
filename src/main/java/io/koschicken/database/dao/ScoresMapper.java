@@ -49,4 +49,7 @@ public interface ScoresMapper extends BaseMapper<Scores> {
 
     @Select("select QQ from Scores where nickname = #{nickname}")
     Long selectQQByNickname(@Param("nickname") String nickname);
+
+    @Select("select * from Scores where groupCode like #{groupCode} order by score desc limit 10")
+    List<Scores> rank(@Param("groupCode") String groupCode);
 }

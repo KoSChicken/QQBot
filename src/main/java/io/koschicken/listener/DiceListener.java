@@ -114,7 +114,7 @@ public class DiceListener {
             sender.SENDER.sendGroupMsg(msg.getGroupCode(), "下注完成");
         }
         int size = diceMap.get(msg.getGroupCode()).size();
-        if (size > 4 && !progressMap.get(msg.getGroupCode())) {
+        if (size > 4 && (!progressMap.get(msg.getGroupCode()) || Objects.isNull(progressMap.get(msg.getGroupCode())))) {
             start(msg, sender);
         }
     }

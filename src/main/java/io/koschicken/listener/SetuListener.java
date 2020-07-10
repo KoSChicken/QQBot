@@ -40,7 +40,7 @@ public class SetuListener {
     private static final String TEMP = "./temp/";
     private static final String ARTWORK_PREFIX = "https://www.pixiv.net/artworks/";
     private static final String ARTIST_PREFIX = "https://www.pixiv.net/users/";
-    private static final int cd = 20;
+    private static final int CD = 20;
     private static HashMap<String, LocalDateTime> coolDown;
     @Autowired
     ScoresService scoresServiceImpl;
@@ -203,7 +203,7 @@ public class SetuListener {
         if (coolDown == null) {
             coolDown = new HashMap<>();
         }
-        coolDown.put(QQ, localDateTime.plusSeconds(cd));
+        coolDown.put(QQ, localDateTime.plusSeconds(CD));
     }
 
     /**

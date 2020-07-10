@@ -31,7 +31,7 @@ public class InitDatabase {
             Statement statement = conn.createStatement();
             switch (version) {
                 case -1://没有数据库版本标识，重新建立数据库
-                    statement.executeUpdate("create table Scores(QQ integer primary key, nickname varchar(50), iSign boolean default false, score integer(8) default 0)");
+                    statement.executeUpdate("create table Scores(QQ integer primary key, nickname varchar(50), iSign boolean default false, score integer(8) default 0, groupCode text)");
                     statement.executeUpdate("create table 'version'('version' integer)");
                     statement.executeUpdate("insert into version values (" + new_version + ")");
                     statement.executeUpdate("create table pic(pid integer primary key, last_send_time datetime)");

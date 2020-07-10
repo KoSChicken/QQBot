@@ -96,4 +96,9 @@ public class ScoresServiceImpl extends ServiceImpl<ScoresMapper, Scores> impleme
     public Long findQQByNickname(String nickname) {
         return scoresMapper.selectQQByNickname(nickname);
     }
+
+    @Override
+    public List<Scores> rank(String groupCode) {
+        return scoresMapper.rank(groupCode);
+    }
 }

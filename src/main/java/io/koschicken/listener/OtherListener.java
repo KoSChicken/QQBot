@@ -827,7 +827,6 @@ public class OtherListener {
         } catch (Exception e) {
             e.printStackTrace();
         }
-        // sender.SENDER.sendGroupMsg(msg.getGroupCode(), "不行，不能嘴臭，要有素质");
     }
 
     /**
