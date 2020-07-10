@@ -29,6 +29,8 @@ public class DiceListener {
     private static final List<String> typeList;
     private static final HashMap<String, Boolean> progressMap = new HashMap<>(); // 骰子游戏状态
     private static final Logger LOGGER = LoggerFactory.getLogger(DiceListener.class);
+    private static final int RATE_N = 2;
+    private static final int RATE_B = 50;
 
     static {
         typeList = new ArrayList<>();
@@ -46,7 +48,9 @@ public class DiceListener {
     @Listen(MsgGetTypes.groupMsg)
     @Filter(value = {"骰子说明"})
     public void startHorse(GroupMsg msg, MsgSender sender) {
-        sender.SENDER.sendGroupMsg(msg.getGroupCode(), "#骰子@机器人 创建游戏\n押骰子[大|小|豹子]#[金额] 下注\n#投掷骰子@机器人 开始游戏\n大小的倍率为2，豹子倍率为10");
+        sender.SENDER.sendGroupMsg(msg.getGroupCode(), "#骰子@机器人 创建游戏\n押骰子[大|小|豹子]#[金额] 下注\n#投掷骰子@机器人 开始游戏\n大小的倍率为"
+                + RATE_N + "，豹子倍率为" + RATE_B
+        );
     }
 
     @Listen(MsgGetTypes.groupMsg)
@@ -110,7 +114,7 @@ public class DiceListener {
             sender.SENDER.sendGroupMsg(msg.getGroupCode(), "下注完成");
         }
         int size = diceMap.get(msg.getGroupCode()).size();
-        if (size > 4) {
+        if (size > 4 && !progressMap.get(msg.getGroupCode())) {
             start(msg, sender);
         }
     }
@@ -142,9 +146,9 @@ public class DiceListener {
                 Scores byId = ScoresServiceImpl.getById(entry);
                 double rate;
                 if (result.equals("豹子")) {
-                    rate = 10;
+                    rate = RATE_B;
                 } else {
-                    rate = 2;
+                    rate = RATE_N;
                 }
                 byId.setScore((int) (byId.getScore() + Integer.parseInt(group.get(entry).get(1)) * rate));
                 list.add(byId);
