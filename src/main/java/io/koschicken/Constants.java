@@ -57,7 +57,7 @@ public class Constants {
             "\t关键字：叫车、车来 可以让机器人发送一张图片，[关键字]+[空格]+[tag名]，可获取指定tag的图片，如 [叫车 东方]\n" +
             "\t还有很多乱七八糟的功能群里问问开发机器人的家伙";
 
-    public static final String configDir = "./src/main/resources/config";
+    public static final String configDir = "./config";
     public static final String coolQAt = "[CQ:at,qq=";
     public static final String[] QieLU = {"切噜", "切哩", "切吉", "噜拉", "啪噜", "切璐", "扣", "啦哩", "啦嘟", "切泼", "啪噼", ",", "嚕嚕", "啰哩", "切拉", "切噼"};
     public static String robotQQ = "0";//机器人qq

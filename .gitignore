@@ -116,3 +116,4 @@ target
 /src/main/resources/config/*
 /src/main/resources/hentai/*
 /temp/
+/config/

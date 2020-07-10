@@ -115,7 +115,7 @@ public class MiraiSpringBootBeanFactoryApp implements MiraiApp {
     }
 
     private String createConfigDir() {
-        File file = new File("./src/main/resources/config");
+        File file = new File("./config");
         if (!file.exists()) {
             file.mkdirs();
         }
