@@ -49,7 +49,8 @@ import static io.koschicken.utils.StringTool.*;
 @Service
 public class OtherListener {
     private static final Logger LOGGER = LoggerFactory.getLogger(OtherListener.class);
-    private static final String ZUICHOU = "https://s.nmsl8.club/loveword?type=2";
+    private static final String ZUICHOU = "https://nmsl.shadiao.app/api.php";
+    private static final String RAINBOW_FART = "https://chp.shadiao.app/api.php";
     private static final String TEMP = "./temp/";
     private static HashMap<String, LocalDateTime> coolDown; //抽卡冷却时间
     @Autowired
@@ -773,16 +774,32 @@ public class OtherListener {
     }
 
     @Listen(MsgGetTypes.groupMsg)
-    @Filter(value = {"#一键嘴臭"}, keywordMatchType = KeywordMatchType.TRIM_EQUALS)
+    @Filter(value = {"#讲几句难听的"}, keywordMatchType = KeywordMatchType.TRIM_EQUALS)
     public void zuichou(GroupMsg msg, MsgSender sender) {
+        Random random = new Random();
+        int i = random.nextInt(100);
+        LOGGER.info("nmsl? {}", i);
+        if (i >= 80) {
+            try {
+                String rf = Request.Get(ZUICHOU).execute().returnContent().asString();
+                sender.SENDER.sendGroupMsg(msg.getGroupCode(), rf);
+            } catch (IOException e) {
+                e.printStackTrace();
+            }
+        } else {
+            sender.SENDER.sendGroupMsg(msg.getGroupCode(), "我是个有素质的bot");
+        }
+    }
+
+    @Listen(MsgGetTypes.groupMsg)
+    @Filter(value = {"#讲几句好听的"}, keywordMatchType = KeywordMatchType.TRIM_EQUALS)
+    public void rainbowFart(GroupMsg msg, MsgSender sender) {
         try {
-            Document parse = Jsoup.parse(new URL(ZUICHOU), 30000);
-            Elements content = parse.getElementsByClass("lead text-muted border-bottom pb-5 pt-4");
-            sender.SENDER.sendGroupMsg(msg.getGroupCode(), content.text());
+            String rf = Request.Get(RAINBOW_FART).execute().returnContent().asString();
+            sender.SENDER.sendGroupMsg(msg.getGroupCode(), rf);
         } catch (IOException e) {
             e.printStackTrace();
         }
-        // sender.SENDER.sendGroupMsg(msg.getGroupCode(), "不行，不能嘴臭，要有素质");
     }
 
     @Listen(MsgGetTypes.groupMsg)

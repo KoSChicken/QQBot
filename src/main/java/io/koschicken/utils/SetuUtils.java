@@ -10,13 +10,13 @@ import org.apache.http.client.fluent.Request;
 import org.apache.http.util.EntityUtils;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
-import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.util.StringUtils;
 
 import java.io.IOException;
+import java.util.ArrayList;
 import java.util.HashMap;
+import java.util.List;
 import java.util.Map;
-import java.util.Objects;
 
 import static io.koschicken.Constants.princessConfig;
 
@@ -36,53 +36,82 @@ public class SetuUtils {
         codeMap.put(429, "达到调用额度限制");
     }
 
-    public static Pixiv getSetu(String tag, Integer num, Integer type) throws IOException {
-//        num = Objects.isNull(num) || num == 0 ? 1 : num;
-//        String api = YUBAN1073API + "?num=" + num;
-//        if (Objects.isNull(type)) {
-//            type = 3;
-//        }
-//        api += "&type=" + type;
-//        if (!StringUtils.isEmpty(tag)) {
-//            api += "&tag=" + tag;
-//        }
-//        LOGGER.info("这次请求的地址为： {}", api);
-        ResponseHandler<String> myHandler = response -> EntityUtils.toString(response.getEntity(), Consts.UTF_8);
-//        String response = Request.Get(api).execute().handleResponse(myHandler);
-//        JSONObject jsonObject = JSON.parseObject(response);
-        Pixiv pixiv = new Pixiv();
-//        pixiv.setCode(jsonObject.getString("code"));
-//        pixiv.setMsg(jsonObject.getString("msg"));
-//        if ("200".equals(jsonObject.getString("code"))) { // 请求成功
-//            JSONArray dataArray = jsonObject.getJSONArray("data");
-//            JSONObject data = dataArray.getJSONObject(0);
-//            fillPixiv(pixiv, data);
-//        } else { // 没请求成功，去请求lolicon的API
-            fetchFromLolicon(tag, myHandler, pixiv);
-//        }
-        return pixiv;
+    public static List<Pixiv> getSetu(String tag, int num, Boolean r18) throws IOException {
+        List<Pixiv> pixivList = fetchFromLolicon(num, tag, r18);
+        if ("0".equals(pixivList.get(0).getCode())) {
+            // 请求lolicon的API成功则返回
+            return pixivList;
+        } else {
+            // 否则请求yuban
+            return fetchFromYuban1073(num, tag, r18);
+        }
     }
 
-    private static void fetchFromLolicon(String tag, ResponseHandler<String> myHandler, Pixiv pixiv) throws IOException {
-        String response;
-        JSONObject jsonObject;
-        String loliconApi = LOLICONAPI + "?apikey=" + princessConfig.getLoliconApiKey() + "&r18=2&size1200=true";
+    private static List<Pixiv> fetchFromYuban1073(int num, String tag, Boolean r18) throws IOException {
+        List<Pixiv> pics = new ArrayList<>();
+        String api = YUBAN1073API + "?num=" + num;
+        int type;
+        if (r18) {
+            type = 2;
+        } else {
+            type = 3;
+        }
+        api += "&type=" + type;
+        if (!StringUtils.isEmpty(tag)) {
+            api += "&tag=" + tag;
+        }
+        LOGGER.info("这次请求的地址为： {}", api);
+        ResponseHandler<String> myHandler = response -> EntityUtils.toString(response.getEntity(), Consts.UTF_8);
+        String response = Request.Get(api).execute().handleResponse(myHandler);
+        JSONObject jsonObject = JSON.parseObject(response);
+        if ("200".equals(jsonObject.getString("code"))) { // 请求成功
+            JSONArray dataArray = jsonObject.getJSONArray("data");
+            for (int i = 0; i < dataArray.size(); i++) {
+                Pixiv pixiv = new Pixiv();
+                JSONObject data = dataArray.getJSONObject(i);
+                fillPixiv(pixiv, data);
+                pics.add(pixiv);
+            }
+        } else {
+            Pixiv pixiv = new Pixiv();
+            pixiv.setCode(jsonObject.getString("code"));
+            pixiv.setMsg(jsonObject.getString("msg"));
+            pics.add(pixiv);
+        }
+        return pics;
+    }
+
+    private static List<Pixiv> fetchFromLolicon(int num, String tag, Boolean r18) throws IOException {
+        List<Pixiv> pics = new ArrayList<>();
+        String loliconApi = LOLICONAPI + "?apikey=" + princessConfig.getLoliconApiKey() + "&r18=2&size1200=true&num=" + num;
         if (!StringUtils.isEmpty(tag)) {
             loliconApi += "&keyword=" + tag;
         }
-        LOGGER.info("这次请求的Lolicon地址为： {}", loliconApi);
-        response = Request.Get(loliconApi).execute().handleResponse(myHandler);
-        jsonObject = JSON.parseObject(response);
-        Integer code = jsonObject.getInteger("code");
-        pixiv.setCode(code.toString());
-        if (code == 0) {
-            pixiv.setQuota(jsonObject.getInteger("quota"));
-            JSONArray dataArray = jsonObject.getJSONArray("data");
-            JSONObject data = dataArray.getJSONObject(0);
-            fillPixivLolicon(pixiv, data);
-        } else {
-            pixiv.setMsg(codeMap.get(code));
+        if (r18 != null) {
+            loliconApi += "&r18=" + (r18 ? 1 : 2);
         }
+        LOGGER.info("这次请求的Lolicon地址为： {}", loliconApi);
+        ResponseHandler<String> myHandler = response -> EntityUtils.toString(response.getEntity(), Consts.UTF_8);
+        String response = Request.Get(loliconApi).execute().handleResponse(myHandler);
+        JSONObject jsonObject = JSON.parseObject(response);
+        Integer code = jsonObject.getInteger("code");
+        if (code == 0) {
+            JSONArray dataArray = jsonObject.getJSONArray("data");
+            for (int i = 0; i < dataArray.size(); i++) {
+                Pixiv pixiv = new Pixiv();
+                pixiv.setCode(code.toString());
+                pixiv.setQuota(jsonObject.getInteger("quota"));
+                JSONObject data = dataArray.getJSONObject(i);
+                fillPixivLolicon(pixiv, data);
+                pics.add(pixiv);
+            }
+        } else {
+            Pixiv pixiv = new Pixiv();
+            pixiv.setCode(code.toString());
+            pixiv.setMsg(codeMap.get(code));
+            pics.add(pixiv);
+        }
+        return pics;
     }
 
     private static void fillPixiv(Pixiv pixiv, JSONObject data) {
