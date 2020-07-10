@@ -24,7 +24,7 @@ import static io.koschicken.listener.PrincessIntercept.On;
 @Service
 public class DiceListener {
 
-    //赛马  群号->映射群员->映射押注对象号码 押注金额
+    // 群号->映射群员->映射押注内容 押注金额
     private static final HashMap<String, Map<Long, List<String>>> diceMap = new HashMap<>();
     private static final List<String> typeList;
     private static final HashMap<String, Boolean> progressMap = new HashMap<>(); // 骰子游戏状态
