@@ -74,6 +74,7 @@ public class DiceListener {
         Boolean running = progressMap.get(msg.getGroupCode());
         if (running != null && running) {
             sender.SENDER.sendGroupMsg(msg.getGroupCode(), "骰子游戏开始，不再接受下注");
+            return;
         }
         String re = "^押骰子(.*)#([0-9]+)$";
         String str = msg.getMsg();
