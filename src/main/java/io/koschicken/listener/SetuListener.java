@@ -296,6 +296,7 @@ public class SetuListener {
 
         @Override
         public void run() {
+            int sendCount = 0; // 记录实际发送的图片张数
             try {
                 List<Pixiv> setu = getSetu(tag, num, r18);
                 Pixiv pixiv = setu.get(0);
@@ -303,8 +304,6 @@ public class SetuListener {
                 String code = pixiv.getCode();
                 boolean fromLolicon = "0".equals(code);
                 if ("200".equals(code) || fromLolicon) {
-                    coin.setScore(coin.getScore() - princessConfig.getSetuCoin() * num);
-                    scoresService.updateById(coin);
                     for (Pixiv p : setu) {
                         String filename = p.getFileName();
                         File pic;
@@ -335,7 +334,10 @@ public class SetuListener {
                             message += "\n" + "今日剩余额度：" + p.getQuota();
                         }
                         sender.SENDER.sendGroupMsg(sendQQ, message);
+                        sendCount++;
                     }
+                    coin.setScore(coin.getScore() - princessConfig.getSetuCoin() * sendCount);
+                    scoresService.updateById(coin); // 按照实际发送的张数来扣除叫车者的币
                 } else {
                     sender.SENDER.sendGroupMsg(sendQQ, pixiv.getMsg());
                 }

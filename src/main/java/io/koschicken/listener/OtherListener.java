@@ -71,6 +71,7 @@ public class OtherListener {
     @Filter(value = {"#其他功能帮助", "#1"}, keywordMatchType = KeywordMatchType.TRIM_EQUALS)
     public void otherHelpListen1(GroupMsg msg, MsgSender sender) {
         sender.SENDER.sendGroupMsg(msg.getGroupCode(), OTHER_HELP_MSG);
+        sender.SENDER.sendGroupMsg(msg.getGroupCode(), OTHER_HELP_MSG_P2);
     }
 
     @Listen(MsgGetTypes.groupMsg)
@@ -95,6 +96,7 @@ public class OtherListener {
     @Filter(value = {"#bilibili相关帮助", "#5"}, keywordMatchType = KeywordMatchType.TRIM_EQUALS)
     public void bilibiliListen(GroupMsg msg, MsgSender sender) {
         sender.SENDER.sendGroupMsg(msg.getGroupCode(), BilibiliMsg);
+        sender.SENDER.sendGroupMsg(msg.getGroupCode(), BilibiliMsg_P2);
     }
 
     @Listen(MsgGetTypes.privateMsg)
@@ -108,6 +110,7 @@ public class OtherListener {
     @Filter(value = {"其他功能帮助", "#其它功能帮助", "#1"}, keywordMatchType = KeywordMatchType.TRIM_EQUALS)
     public void otherHelpListen(PrivateMsg msg, MsgSender sender) {
         sender.SENDER.sendPrivateMsg(msg.getQQCode(), OTHER_HELP_MSG);
+        sender.SENDER.sendPrivateMsg(msg.getQQCode(), OTHER_HELP_MSG_P2);
     }
 
     @Listen(MsgGetTypes.privateMsg)
@@ -132,6 +135,7 @@ public class OtherListener {
     @Filter(value = {"bilibili相关帮助", "#bilibili相关帮助", "#5"}, keywordMatchType = KeywordMatchType.TRIM_EQUALS)
     public void bilibiliListen(PrivateMsg msg, MsgSender sender) {
         sender.SENDER.sendPrivateMsg(msg.getQQCode(), BilibiliMsg);
+        sender.SENDER.sendPrivateMsg(msg.getQQCode(), BilibiliMsg_P2);
     }
 
     @Listen(MsgGetTypes.groupMsg)

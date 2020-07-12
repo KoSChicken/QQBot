@@ -30,7 +30,8 @@ public class Constants {
     public static final String BilibiliMsg = "以下全部为私聊\n" +
             "1.获取视频封面图片 [视频封面 av/bv号]\nav与bv需统一大小写\n例: 视频封面 av1145124 \n" +
             "2.av/bv转换 \n直接输入av/bv号即可 \n例: av11458\n" +
-            "3.当前up直播状态 [直播 upuid]\n仅仅是b站直播，其他站的在计划中.jpg\n" +
+            "3.当前up直播状态 [直播 upuid]\n仅仅是b站直播，其他站的在计划中.jpg\n";
+    public static final String BilibiliMsg_P2 =
             "4.设置开播提示 [设置开播提示 up的uid]\n" +
             "5.查看开播提示槽位使用情况 [查看开播提示]\n" +
             "6.清除一个开播槽位上的记录 [清除开播提示 槽位]\n示例 清除开播提示 1\n" +
@@ -49,7 +50,8 @@ public class Constants {
             "\t解密切噜语：[翻译切噜 文本]\n" +
             "\t赛马：[#赛马@机器人] 此时会开启赛马\n" +
             "\t\t押马[马的编号]#[马币数量] 下注\n" +
-            "\t\t[#开始赛马@机器人] 此时会开始赛马\n" +
+            "\t\t[#开始赛马@机器人] 此时会开始赛马\n";
+    public static final String OTHER_HELP_MSG_P2 =
             "\t签到 [#给xcw上供、#签到、#上供] 每天只能签到一次，可以获取5000币\n" +
             "\t私聊或者群里发送 [我有多少钱] 可以获取余额\n" +
             "\t查看群内设置 [#查看本群设置]\n" +
