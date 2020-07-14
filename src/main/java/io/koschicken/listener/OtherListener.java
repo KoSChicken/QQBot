@@ -595,9 +595,9 @@ public class OtherListener {
             }
 
             if (msg instanceof GroupMsg) {
-                sender.SENDER.sendGroupMsg(((GroupMsg) msg), String.valueOf(getChars(bytes.toArray(new Byte[0]))));
+                sender.SENDER.sendGroupMsg(((GroupMsg) msg), String.valueOf(getChars(bytes.toArray(new Byte[bytes.size()]))));
             } else {
-                sender.SENDER.sendPrivateMsg(((PrivateMsg) msg), String.valueOf(getChars(bytes.toArray(new Byte[0]))));
+                sender.SENDER.sendPrivateMsg(((PrivateMsg) msg), String.valueOf(getChars(bytes.toArray(new Byte[bytes.size()]))));
             }
         } else {
             if (msg instanceof GroupMsg) {
