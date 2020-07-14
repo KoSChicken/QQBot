@@ -17,7 +17,6 @@ public class ImageUtil {
     //制作抽卡出货的图
     public static String composeImg(ArrayList<String> charas) throws IOException {
         if (charas.size() > 0) {
-
             int rows = charas.size() >= LINE_SIZE_MAX ? LINE_SIZE_MAX : charas.size();
             int cols = charas.size() / LINE_SIZE_MAX + (charas.size() % LINE_SIZE_MAX == 0 ? 0 : 1);
             BufferedImage thumbImage = new BufferedImage(rows * HEIGHT_AND_WEIGHT, cols * HEIGHT_AND_WEIGHT, BufferedImage.TYPE_INT_RGB);
