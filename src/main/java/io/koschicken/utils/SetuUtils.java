@@ -123,6 +123,7 @@ public class SetuUtils {
         pixiv.setType(data.getString("type"));
         pixiv.setFileName(data.getString("filename"));
         pixiv.setOriginal(data.getString("original"));
+        pixiv.setR18("porn".equals(data.getString("type")));
     }
 
     private static void fillPixivLolicon(Pixiv pixiv, JSONObject data) {
@@ -134,5 +135,6 @@ public class SetuUtils {
         pixiv.setType(data.getBoolean("r18") ? "r18" : "normal");
         pixiv.setFileName(data.getString("url"));
         pixiv.setOriginal(data.getString("url"));
+        pixiv.setR18(Boolean.parseBoolean(data.getString("r18")));
     }
 }

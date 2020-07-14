@@ -12,13 +12,14 @@ public class PrincessConfig {
     private int signCoin;//签到一次给的钱
     private int setuCoin;//发一次图给的钱
     private String loliconApiKey; //loliconApi的APIKEY
+    private boolean r18Private; //r18图片的私聊开关
 
     public PrincessConfig() {
     }
 
     public PrincessConfig(String tixingmaiyao, int gachaLimit, int gachaCooldown,
                           boolean globalSwitch, boolean gachaSwitch, boolean maiyaoSwitch, boolean horseSwitch,
-                          String masterQQ, int signCoin, int setuCoin, String loliconApiKey) {
+                          String masterQQ, int signCoin, int setuCoin, String loliconApiKey, boolean r18Private) {
         this.tixingmaiyao = tixingmaiyao;
         this.gachaLimit = gachaLimit;
         this.gachaCooldown = gachaCooldown;
@@ -30,6 +31,7 @@ public class PrincessConfig {
         this.signCoin = signCoin;
         this.setuCoin = setuCoin;
         this.loliconApiKey = loliconApiKey;
+        this.r18Private = r18Private;
     }
 
     public String getTixingmaiyao() {
@@ -118,6 +120,14 @@ public class PrincessConfig {
 
     public void setLoliconApiKey(String loliconApiKey) {
         this.loliconApiKey = loliconApiKey;
+    }
+
+    public boolean isR18Private() {
+        return r18Private;
+    }
+
+    public void setR18Private(boolean r18Private) {
+        this.r18Private = r18Private;
     }
 
     @Override

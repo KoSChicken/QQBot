@@ -24,7 +24,6 @@ import org.springframework.stereotype.Service;
 import java.io.File;
 import java.io.IOException;
 import java.io.InputStream;
-import java.net.URL;
 import java.time.LocalDateTime;
 import java.util.HashMap;
 import java.util.List;
@@ -126,7 +125,7 @@ public class SetuListener {
                         sender.SENDER.sendGroupMsg(msg.getGroupCode(), "机器人还不能发图片");
                         return;
                     }
-                    SendSetu sendSetu = new SendSetu(msg.getGroupCode(), sender, tag, num, r18, coin, scoresServiceImpl, picServiceImpl);
+                    SendSetu sendSetu = new SendSetu(msg.getGroupCode(), msg.getQQ(), sender, tag, num, r18, coin, scoresServiceImpl, picServiceImpl);
                     sendSetu.start();
                     refreshCooldown(msg.getQQ());
                 }
@@ -168,9 +167,8 @@ public class SetuListener {
     }
 
     @Listen(MsgGetTypes.privateMsg)
-    @Filter(value = {"叫车 (.*?)[点丶份张幅](.*?)的?(|r18)", "来(.*?)[点丶份张幅](.*?)的?(|r18)[色瑟涩][图圖]"})
+    @Filter(value = {"叫车(.*)(.*)?(|r18)", "来(.*?)[点丶份张幅](.*?)的?(|r18)[色瑟涩][图圖]"})
     public void config(PrivateMsg msg, MsgSender sender) {
-
         if (isCool(msg.getQQ())) {
             if (!canSendImage) {
                 sender.SENDER.sendGroupMsg(msg.getQQCode(), "机器人还不能发图片");
@@ -183,7 +181,7 @@ public class SetuListener {
                 String message = msg.getMsg();
                 String regex;
                 if (message.startsWith("叫车")) {
-                    regex = "叫车(.*?)(|r18)";
+                    regex = "叫车(.*)(.*)?(|r18)";
                 } else {
                     regex = "来(.*?)[点丶份张幅](.*?)的?(|r18)[色瑟涩][图圖]";
                 }
@@ -218,12 +216,12 @@ public class SetuListener {
                         } catch (NumberFormatException e) {
                             LOGGER.info("不是数字，默认为1");
                         }
-                        tag = number;
+                        tag = m.group(2).trim();
                     }
                     r18 = !StringUtils.isEmpty(m.group(3).trim());
                 }
                 // 发图
-                SendSetu sendSetu = new SendSetu(msg.getQQ(), sender, tag, num, r18, coin, scoresServiceImpl, picServiceImpl);
+                SendSetu sendSetu = new SendSetu(null, msg.getQQ(), sender, tag, num, r18, coin, scoresServiceImpl, picServiceImpl);
                 sendSetu.start();
                 refreshCooldown(msg.getQQ());
             } else {
@@ -273,7 +271,8 @@ public class SetuListener {
     }
 
     class SendSetu extends Thread {
-        private final String sendQQ;
+        private final String groupCode;
+        private final String privateQQ;
         private final MsgSender sender;
         private final String tag;
         private final Integer num;
@@ -282,9 +281,10 @@ public class SetuListener {
         private final ScoresService scoresService;
         private final PicService picService;
 
-        public SendSetu(String sendQQ, MsgSender sender, String tag, Integer num, Boolean r18,
-                        Scores coin, ScoresService scoresService, PicService picService) {
-            this.sendQQ = sendQQ;
+        public SendSetu(String groupCode, String privateQQ, MsgSender sender, String tag, Integer num,
+                        Boolean r18, Scores coin, ScoresService scoresService, PicService picService) {
+            this.groupCode = groupCode;
+            this.privateQQ = privateQQ;
             this.sender = sender;
             this.tag = tag;
             this.num = num;
@@ -333,17 +333,26 @@ public class SetuListener {
                         if (fromLolicon) {
                             message += "\n" + "今日剩余额度：" + p.getQuota();
                         }
-                        sender.SENDER.sendGroupMsg(sendQQ, message);
+                        if (StringUtils.isEmpty(groupCode)) { // 不是群消息，则直接私聊
+                            sender.SENDER.sendPrivateMsg(privateQQ, message);
+                        } else {
+                            if (!p.isR18()) { // 非R18且叫车的是群消息
+                                sender.SENDER.sendGroupMsg(groupCode, message);
+                            } else {  // R18则发送私聊
+                                sender.SENDER.sendPrivateMsg(privateQQ, message);
+                            }
+
+                        }
                         sendCount++;
                     }
                     coin.setScore(coin.getScore() - princessConfig.getSetuCoin() * sendCount);
                     scoresService.updateById(coin); // 按照实际发送的张数来扣除叫车者的币
                 } else {
-                    sender.SENDER.sendGroupMsg(sendQQ, pixiv.getMsg());
+                    sender.SENDER.sendGroupMsg(groupCode, pixiv.getMsg());
                 }
             } catch (IOException e) {
                 e.printStackTrace();
-                sender.SENDER.sendGroupMsg(sendQQ, "炸了");
+                sender.SENDER.sendGroupMsg(groupCode, "炸了");
             }
         }
     }

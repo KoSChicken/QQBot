@@ -319,6 +319,7 @@ public class OtherListener {
                 "\n好像没啥用的开关默认：" + princessConfig.isMaiyaoSwitch() +
                 "\n扭蛋开关默认：" + princessConfig.isGachaSwitch() +
                 "\n赛马开关默认：" + princessConfig.isHorseSwitch() +
+                "\nr18私聊开关默认：" + princessConfig.isR18Private() +
                 "\nmasterQQ：" + princessConfig.getMasterQQ());
     }
 
@@ -333,6 +334,7 @@ public class OtherListener {
                 "\n好像没啥用的开关默认：" + princessConfig.isMaiyaoSwitch() +
                 "\n扭蛋开关默认：" + princessConfig.isGachaSwitch() +
                 "\n赛马开关默认：" + princessConfig.isHorseSwitch() +
+                "\nr18私聊开关默认：" + princessConfig.isR18Private() +
                 "\nmasterQQ：" + princessConfig.getMasterQQ());
     }
 

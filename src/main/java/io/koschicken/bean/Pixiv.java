@@ -14,6 +14,7 @@ public class Pixiv {
     private String fileName;
     private String original;
     private Integer quota;
+    private boolean r18;
 
     public Pixiv() {
     }
@@ -118,6 +119,14 @@ public class Pixiv {
 
     public void setQuota(Integer quota) {
         this.quota = quota;
+    }
+
+    public boolean isR18() {
+        return r18;
+    }
+
+    public void setR18(boolean r18) {
+        this.r18 = r18;
     }
 
     @Override

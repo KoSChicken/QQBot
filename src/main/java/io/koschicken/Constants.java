@@ -181,7 +181,7 @@ public class Constants {
             }
             princessConfig = new PrincessConfig("买药.png", 1000, 5,
                     true, true, true, true, "",
-                    5000, 1000, "");
+                    5000, 1000, "", true);
         }
         try {
             princessConfig = loadConfig(file);
@@ -211,6 +211,8 @@ public class Constants {
         pro.setProperty("发一次色图花费", "1000");
         pro.addComment("loliconApi的APIKEY");
         pro.setProperty("LOLICON_API_KEY", "");
+        pro.addComment("r18私聊开关");
+        pro.setProperty("r18私聊", "true");
         pro.store(outputStream, "通用配置");
         outputStream.close();
     }
@@ -231,7 +233,8 @@ public class Constants {
                 pro.getProperty("主人qq"),
                 Integer.parseInt(pro.getProperty("签到一次金币")),
                 Integer.parseInt(pro.getProperty("发一次色图花费")),
-                pro.getProperty("LOLICON_API_KEY")
+                pro.getProperty("LOLICON_API_KEY"),
+                Boolean.parseBoolean(pro.getProperty("r18私聊"))
         );
         in.close();
         return princessConfig;
