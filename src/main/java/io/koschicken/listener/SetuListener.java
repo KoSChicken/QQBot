@@ -348,7 +348,11 @@ public class SetuListener {
                     coin.setScore(coin.getScore() - princessConfig.getSetuCoin() * sendCount);
                     scoresService.updateById(coin); // 按照实际发送的张数来扣除叫车者的币
                 } else {
-                    sender.SENDER.sendGroupMsg(groupCode, pixiv.getMsg());
+                    if (StringUtils.isEmpty(groupCode)) {
+                        sender.SENDER.sendPrivateMsg(privateQQ, pixiv.getMsg());
+                    } else {
+                        sender.SENDER.sendGroupMsg(groupCode, pixiv.getMsg());
+                    }
                 }
             } catch (IOException e) {
                 e.printStackTrace();

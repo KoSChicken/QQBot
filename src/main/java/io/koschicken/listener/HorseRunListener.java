@@ -128,8 +128,11 @@ public class HorseRunListener {
                 }
                 byId.setScore(byId.getScore() + signScore);
                 byId.setiSign(true);
-                if (!byId.getGroupCode().contains(msg.getGroupCode())) {
-                    byId.setGroupCode(byId.getGroupCode() + ", " + msg.getGroupCode());
+                String groupCode = byId.getGroupCode();
+                if (groupCode != null && !groupCode.contains(msg.getGroupCode())) {
+                    byId.setGroupCode(groupCode + ", " + msg.getGroupCode());
+                } else {
+                    byId.setGroupCode(msg.getGroupCode());
                 }
                 scoresService.updateById(byId);
                 sender.SENDER.sendGroupMsg(msg.getGroupCode(), "[CQ:at,qq=" + msg.getQQ() +
