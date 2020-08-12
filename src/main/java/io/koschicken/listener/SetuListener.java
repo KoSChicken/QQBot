@@ -10,7 +10,6 @@ import com.forte.qqrobot.sender.MsgSender;
 import com.forte.qqrobot.utils.CQCodeUtil;
 import io.koschicken.bean.Pixiv;
 import io.koschicken.database.bean.Scores;
-import io.koschicken.database.service.PicService;
 import io.koschicken.database.service.ScoresService;
 import org.apache.commons.io.FileUtils;
 import org.apache.commons.lang3.RandomUtils;
@@ -40,8 +39,9 @@ public class SetuListener {
     private static final String ARTWORK_PREFIX = "https://www.pixiv.net/artworks/";
     private static final String ARTIST_PREFIX = "https://www.pixiv.net/users/";
     private static final int CD = 20;
-    private static HashMap<String, LocalDateTime> coolDown;
-    private static HashMap<String, Integer> NUMBER;
+    private static final HashMap<String, Integer> NUMBER;
+    private static HashMap<String, HashMap<String, LocalDateTime>> coolDown;
+
     static {
         NUMBER = new HashMap<>();
         NUMBER.put("一", 1);
@@ -60,16 +60,16 @@ public class SetuListener {
     }
 
     @Autowired
-    ScoresService scoresServiceImpl;
+    private ScoresService scoresServiceImpl;
 
-    @Autowired
-    PicService picServiceImpl;
+//    @Autowired
+//    private PicService picServiceImpl;
 
     @Listen(MsgGetTypes.groupMsg)
     @Filter(value = {"叫车(.*)(.*)?(|r18)", "来(.*?)[点丶份张幅](.*?)的?(|r18)[色瑟涩][图圖]"})
     public void jiaoche(GroupMsg msg, MsgSender sender) {
         // sender.SENDER.sendGroupMsg(msg.getGroupCode(), "别叫了，群主不喜欢");
-        if (isCool(msg.getQQ())) {
+        if (isCool(msg.getQQ(), msg.getGroupCode())) {
             Scores coin = scoresServiceImpl.getById(msg.getCodeNumber());
             if (coin == null) {
                 createScore(msg, sender);
@@ -86,7 +86,7 @@ public class SetuListener {
                 int num = 1;
                 String tag = "";
                 boolean r18 = false;
-                String number = "";
+                String number;
                 while (m.find()) {
                     // 兼容原有的叫车功能
                     if (message.startsWith("叫车")) {
@@ -125,9 +125,9 @@ public class SetuListener {
                         sender.SENDER.sendGroupMsg(msg.getGroupCode(), "机器人还不能发图片");
                         return;
                     }
-                    SendSetu sendSetu = new SendSetu(msg.getGroupCode(), msg.getQQ(), sender, tag, num, r18, coin, scoresServiceImpl, picServiceImpl);
+                    SendSetu sendSetu = new SendSetu(msg.getGroupCode(), msg.getQQ(), sender, tag, num, r18, coin, scoresServiceImpl);
                     sendSetu.start();
-                    refreshCooldown(msg.getQQ());
+                    refreshCooldown(msg.getQQ(), msg.getGroupCode());
                 }
             } else {
                 sender.SENDER.sendGroupMsg(msg.getGroupCode(), coolQAt + msg.getQQCode() + "]" +
@@ -148,6 +148,7 @@ public class SetuListener {
                 "你没钱了，请发送#签到获取今日5000币，如果已获取过请明天再来吧");
     }
 
+    @SuppressWarnings("unused")
     private void groupMember(GroupMsg msg, MsgSender sender, Long QQ) {
         String AVATAR_API = "http://thirdqq.qlogo.cn/g?b=qq&nk=";
         String api = AVATAR_API + QQ.toString() + "&s=640";
@@ -169,7 +170,7 @@ public class SetuListener {
     @Listen(MsgGetTypes.privateMsg)
     @Filter(value = {"叫车(.*)(.*)?(|r18)", "来(.*?)[点丶份张幅](.*?)的?(|r18)[色瑟涩][图圖]"})
     public void config(PrivateMsg msg, MsgSender sender) {
-        if (isCool(msg.getQQ())) {
+        if (isCool(msg.getQQ(), "0")) {
             if (!canSendImage) {
                 sender.SENDER.sendGroupMsg(msg.getQQCode(), "机器人还不能发图片");
                 return;
@@ -190,7 +191,7 @@ public class SetuListener {
                 int num = 1;
                 String tag = "";
                 boolean r18 = false;
-                String number = "";
+                String number;
                 while (m.find()) {
                     // 兼容原有的叫车功能
                     if (message.startsWith("叫车")) {
@@ -221,9 +222,9 @@ public class SetuListener {
                     r18 = !StringUtils.isEmpty(m.group(3).trim());
                 }
                 // 发图
-                SendSetu sendSetu = new SendSetu(null, msg.getQQ(), sender, tag, num, r18, coin, scoresServiceImpl, picServiceImpl);
+                SendSetu sendSetu = new SendSetu(null, msg.getQQ(), sender, tag, num, r18, coin, scoresServiceImpl);
                 sendSetu.start();
-                refreshCooldown(msg.getQQ());
+                refreshCooldown(msg.getQQ(), "0");
             } else {
                 sender.SENDER.sendPrivateMsg(msg.getQQCode(), "你没钱了，请发送#签到获取今日5000币，如果已获取过请明天再来吧");
             }
@@ -244,12 +245,17 @@ public class SetuListener {
     /**
      * 刷新冷却时间
      */
-    private void refreshCooldown(String QQ) {
+    private void refreshCooldown(String QQ, String groupCode) {
         LocalDateTime localDateTime = LocalDateTime.now();
         if (coolDown == null) {
             coolDown = new HashMap<>();
         }
-        coolDown.put(QQ, localDateTime.plusSeconds(CD));
+        HashMap<String, LocalDateTime> hashMap = coolDown.get(groupCode);
+        if (hashMap == null) {
+            hashMap = new HashMap<>();
+        }
+        hashMap.put(QQ, localDateTime.plusSeconds(CD));
+        coolDown.put(groupCode, hashMap);
     }
 
     /**
@@ -257,20 +263,26 @@ public class SetuListener {
      *
      * @param QQ
      */
-    private boolean isCool(String QQ) {
+    private boolean isCool(String QQ, String groupCode) {
         if (coolDown == null) {
             coolDown = new HashMap<>();
             return true;
         } else {
-            if (coolDown.get(QQ) != null) {
-                return coolDown.get(QQ).isBefore(LocalDateTime.now());
+            HashMap<String, LocalDateTime> hashMap = coolDown.get(groupCode);
+            if (hashMap != null) {
+                LocalDateTime localDateTime = hashMap.get(QQ);
+                if (localDateTime != null) {
+                    return localDateTime.isBefore(LocalDateTime.now());
+                } else {
+                    return true;
+                }
             } else {
                 return true;
             }
         }
     }
 
-    class SendSetu extends Thread {
+    static class SendSetu extends Thread {
         private final String groupCode;
         private final String privateQQ;
         private final MsgSender sender;
@@ -279,10 +291,10 @@ public class SetuListener {
         private final Boolean r18;
         private final Scores coin;
         private final ScoresService scoresService;
-        private final PicService picService;
+        // private final PicService picService;
 
         public SendSetu(String groupCode, String privateQQ, MsgSender sender, String tag, Integer num,
-                        Boolean r18, Scores coin, ScoresService scoresService, PicService picService) {
+                        Boolean r18, Scores coin, ScoresService scoresService/*, PicService picService*/) {
             this.groupCode = groupCode;
             this.privateQQ = privateQQ;
             this.sender = sender;
@@ -291,7 +303,7 @@ public class SetuListener {
             this.r18 = r18;
             this.coin = coin;
             this.scoresService = scoresService;
-            this.picService = picService;
+            // this.picService = picService;
         }
 
         @Override
@@ -341,7 +353,6 @@ public class SetuListener {
                             } else {  // R18则发送私聊
                                 sender.SENDER.sendPrivateMsg(privateQQ, message);
                             }
-
                         }
                         sendCount++;
                     }

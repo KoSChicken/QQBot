@@ -12,18 +12,14 @@ import com.forte.qqrobot.utils.CQCodeUtil;
 import com.simplerobot.modules.utils.KQCodeUtils;
 import io.koschicken.Constants;
 import io.koschicken.bean.Gacha;
-import io.koschicken.utils.ImageUtil;
-import org.apache.commons.io.FileUtils;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.stereotype.Service;
 import org.springframework.util.ResourceUtils;
 
-import javax.imageio.ImageIO;
 import java.io.File;
 import java.io.FileNotFoundException;
 import java.io.IOException;
-import java.io.InputStream;
 import java.time.LocalDateTime;
 import java.util.ArrayList;
 import java.util.HashMap;
@@ -365,14 +361,15 @@ public class PCRListener {
 
         //人物图片
         if (canSendImage) {
-            if (r + sr + ssr == 10) { // 仅在十连的情况下才显示动画
+            int total = r + sr + ssr;
+            if (total == 1 || total == 10) { // 仅在单抽或十连的情况下才显示动画
                 for (int i = 0; i < list.size(); i++) {
                     File file = new File("./config/gif/" + list.get(i) + ".gif");
                     CQCode cqCode_image = CQCodeUtil.build().getCQCode_Image(file.getAbsolutePath());
                     stringBuilder.append(cqCode_image.toString());
-                    if (i > 2) {
-                        break; // 最多只发三张动态图
-                    }
+//                    if (i > 2) {
+//                        break; // 最多只发三张动态图
+//                    }
                 }
             } else {
                 try {

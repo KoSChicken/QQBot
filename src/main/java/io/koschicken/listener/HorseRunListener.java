@@ -67,11 +67,8 @@ public class HorseRunListener {
                 return;
             }
             scoresService.refundWu(Long.parseLong(msg.getQQCode()), refund);
-        } else {
-            sender.SENDER.sendGroupMsg(msg.getGroupCode(), "不写金额退个吉尔");
-            return;
+            sender.SENDER.sendGroupMsg(msg.getGroupCode(), "恭喜你，成功退款，快查查余额吧 :)");
         }
-        sender.SENDER.sendGroupMsg(msg.getGroupCode(), "恭喜你，成功退款，快查查余额吧 :)");
     }
 
     @Listen(MsgGetTypes.groupMsg)
