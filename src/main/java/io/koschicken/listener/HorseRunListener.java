@@ -116,32 +116,31 @@ public class HorseRunListener {
     @Filter(value = {"#给xcw上供", "上供", "#上供", "签到", "#签到"}, keywordMatchType = KeywordMatchType.TRIM_EQUALS)
     public void sign(GroupMsg msg, MsgSender sender) {
         if (On.get(msg.getGroupCode()).isHorseSwitch()) {
-            Scores byId = scoresService.getById(msg.getCodeNumber());
-            if (byId != null) {
-                if (byId.getiSign()) {
-                    sender.SENDER.sendGroupMsg(msg.getGroupCode(), "[CQ:at,qq=" + msg.getQQ() +
-                            "] 每天只能签到一次");
+            int score = RandomUtils.nextInt(1, 100001);// 随机签到，1-100000
+            Scores scores = scoresService.getById(msg.getCodeNumber());
+            if (scores != null) {
+                if (scores.getiSign()) {
+                    sender.SENDER.sendGroupMsg(msg.getGroupCode(), "[CQ:at,qq=" + msg.getQQ() + "] 每天只能签到一次");
                     return;
                 }
-                byId.setScore(byId.getScore() + signScore);
-                byId.setiSign(true);
-                String groupCode = byId.getGroupCode();
+                scores.setScore(scores.getScore() + score);
+                scores.setiSign(true);
+                String groupCode = scores.getGroupCode();
                 if (groupCode != null && !groupCode.contains(msg.getGroupCode())) {
-                    byId.setGroupCode(groupCode + ", " + msg.getGroupCode());
+                    scores.setGroupCode(groupCode + ", " + msg.getGroupCode());
                 } else {
-                    byId.setGroupCode(msg.getGroupCode());
+                    scores.setGroupCode(msg.getGroupCode());
                 }
-                scoresService.updateById(byId);
-                sender.SENDER.sendGroupMsg(msg.getGroupCode(), "[CQ:at,qq=" + msg.getQQ() +
-                        "] 签到成功，币+5000，现在币:" + byId.getScore());
+                scoresService.updateById(scores);
+                sender.SENDER.sendGroupMsg(msg.getGroupCode(), "[CQ:at,qq=" + msg.getQQ() + "] 签到成功，币+" + score + "，现在币:" + scores.getScore());
             } else {
-                byId = new Scores();
-                byId.setQQ(msg.getCodeNumber());
-                byId.setiSign(true);
-                byId.setScore(signScore);
-                byId.setGroupCode(msg.getGroupCode());
-                scoresService.save(byId);
-                sender.SENDER.sendGroupMsg(msg.getGroupCode(), "[CQ:at,qq=" + msg.getQQ() + "] 签到成功，币+5000");
+                scores = new Scores();
+                scores.setQQ(msg.getCodeNumber());
+                scores.setiSign(true);
+                scores.setScore(signScore); // 第一次签到的仍然是5000
+                scores.setGroupCode(msg.getGroupCode());
+                scoresService.save(scores);
+                sender.SENDER.sendGroupMsg(msg.getGroupCode(), "[CQ:at,qq=" + msg.getQQ() + "] 签到成功，币+" + score);
             }
         }
     }
