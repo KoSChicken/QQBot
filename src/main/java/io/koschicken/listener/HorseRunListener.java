@@ -115,8 +115,14 @@ public class HorseRunListener {
     @Listen(MsgGetTypes.groupMsg)
     @Filter(value = {"#给xcw上供", "上供", "#上供", "签到", "#签到"}, keywordMatchType = KeywordMatchType.TRIM_EQUALS)
     public void sign(GroupMsg msg, MsgSender sender) {
+        int rank = RandomUtils.nextInt(1, 101);
+        int score;
+        if (rank >= 75) {
+            score = RandomUtils.nextInt(10000, 100001);
+        } else {
+            score = RandomUtils.nextInt(1, 10000);
+        }
         if (On.get(msg.getGroupCode()).isHorseSwitch()) {
-            int score = RandomUtils.nextInt(1, 100001);// 随机签到，1-100000
             Scores scores = scoresService.getById(msg.getCodeNumber());
             if (scores != null) {
                 if (scores.getiSign()) {
