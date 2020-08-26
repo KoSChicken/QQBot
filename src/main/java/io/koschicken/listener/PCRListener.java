@@ -40,7 +40,7 @@ public class PCRListener {
     @Filter(value = {"#提醒买药", "#买药", "#小助手"}, keywordMatchType = KeywordMatchType.TRIM_EQUALS)
     public void maiyao(GroupMsg msg, MsgSender sender) {
         try {
-            File file = ResourceUtils.getFile(ResourceUtils.CLASSPATH_URL_PREFIX + "image/" + princessConfig.getTixingmaiyao());
+            File file = ResourceUtils.getFile("/image/" + princessConfig.getTixingmaiyao());
             String str;
             if (file.exists()) {
                 KQCodeUtils kqCodeUtils = KQCodeUtils.getInstance();
