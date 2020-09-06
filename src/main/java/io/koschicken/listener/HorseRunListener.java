@@ -117,10 +117,12 @@ public class HorseRunListener {
     public void sign(GroupMsg msg, MsgSender sender) {
         int rank = RandomUtils.nextInt(1, 101);
         int score;
-        if (rank >= 75) {
-            score = RandomUtils.nextInt(10000, 100001);
+        if (rank >= 99) {
+            score = RandomUtils.nextInt(25000, 50001);
+        } else if (rank >= 95) {
+            score = RandomUtils.nextInt(10000, 25001);
         } else {
-            score = RandomUtils.nextInt(1, 10000);
+            score = RandomUtils.nextInt(1, 10001);
         }
         if (On.get(msg.getGroupCode()).isHorseSwitch()) {
             Scores scores = scoresService.getById(msg.getCodeNumber());

@@ -9,16 +9,13 @@ import com.forte.qqrobot.beans.messages.types.MsgGetTypes;
 import com.forte.qqrobot.beans.types.KeywordMatchType;
 import com.forte.qqrobot.sender.MsgSender;
 import com.forte.qqrobot.utils.CQCodeUtil;
-import com.simplerobot.modules.utils.KQCodeUtils;
 import io.koschicken.Constants;
 import io.koschicken.bean.Gacha;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.stereotype.Service;
-import org.springframework.util.ResourceUtils;
 
 import java.io.File;
-import java.io.FileNotFoundException;
 import java.io.IOException;
 import java.time.LocalDateTime;
 import java.util.ArrayList;
@@ -40,22 +37,20 @@ public class PCRListener {
     @Filter(value = {"#提醒买药", "#买药", "#小助手"}, keywordMatchType = KeywordMatchType.TRIM_EQUALS)
     public void maiyao(GroupMsg msg, MsgSender sender) {
         try {
-            File file = ResourceUtils.getFile("/image/" + princessConfig.getTixingmaiyao());
-            String str;
+            File file = new File("./image/" + princessConfig.getTixingmaiyao());
             if (file.exists()) {
-                KQCodeUtils kqCodeUtils = KQCodeUtils.getInstance();
-                str = kqCodeUtils.toCq("image", "file" + "=" + file.getAbsolutePath());
-                sender.SENDER.sendGroupMsg(msg.getGroupCode(), "我是每日提醒买药小助手，请和我一起做每天买满4次药的大人吧\n" + str);
+                CQCode cqCodeImage = CQCodeUtil.build().getCQCode_Image(file.getAbsolutePath());
+                sender.SENDER.sendGroupMsg(msg.getGroupCode(), "我是每日提醒买药小助手，请和我一起做每天买满4次药的大人吧\n" + cqCodeImage.toString());
             } else {
                 sender.SENDER.sendGroupMsg(msg.getGroupCode(), "快他妈上号买药cnmd");
             }
-        } catch (NullPointerException | FileNotFoundException e) {
+        } catch (NullPointerException e) {
             e.printStackTrace();
         }
     }
 
     @Listen(MsgGetTypes.groupMsg)
-    @Filter(value = "#十连", keywordMatchType = KeywordMatchType.TRIM_EQUALS)
+    @Filter(value = {"#十连", "#十連"}, keywordMatchType = KeywordMatchType.TRIM_EQUALS)
     public void Gashapon10(GroupMsg msg, MsgSender sender) {
         if (isCool(msg.getQQCode())) {
             Gacha gacha = dp_Gashapon(10);
@@ -69,7 +64,7 @@ public class PCRListener {
     }
 
     @Listen(MsgGetTypes.groupMsg)
-    @Filter(value = "#up十连", keywordMatchType = KeywordMatchType.TRIM_EQUALS)
+    @Filter(value = {"#up十连", "#up十連"}, keywordMatchType = KeywordMatchType.TRIM_EQUALS)
     public void Gashapon10Up(GroupMsg msg, MsgSender sender) {
         if (isCool(msg.getQQCode())) {
             Gacha gacha = dp_UpGashapon(10);
