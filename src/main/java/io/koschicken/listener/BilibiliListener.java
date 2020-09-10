@@ -2,6 +2,7 @@ package io.koschicken.listener;
 
 import com.forte.qqrobot.anno.Filter;
 import com.forte.qqrobot.anno.Listen;
+import com.forte.qqrobot.beans.messages.msgget.GroupMsg;
 import com.forte.qqrobot.beans.messages.msgget.PrivateMsg;
 import com.forte.qqrobot.beans.messages.types.MsgGetTypes;
 import com.forte.qqrobot.beans.types.KeywordMatchType;
@@ -28,9 +29,9 @@ public class BilibiliListener {
     ScoresService ScoresServiceImpl;
 
     //视频封面 av114514
-    @Listen(MsgGetTypes.privateMsg)
+    @Listen(MsgGetTypes.groupMsg)
     @Filter(value = "视频封面", keywordMatchType = KeywordMatchType.TRIM_STARTS_WITH)
-    public void videoFace(PrivateMsg msg, MsgSender sender) {
+    public void videoFace(GroupMsg msg, MsgSender sender) {
         String av = msg.getMsg().substring(4).trim();
         try {
             BilibiliVideo bilibiliVideo = null;
@@ -40,12 +41,12 @@ public class BilibiliListener {
                 bilibiliVideo = new BilibiliVideo(av.substring(2), true);
             }
             if (bilibiliVideo != null) {
-                sender.SENDER.sendPrivateMsg(msg.getQQCode(),
+                sender.SENDER.sendGroupMsg(msg.getGroupCode(),
                         "av号：" + av +
                                 "\nbv号：" + bilibiliVideo.getBv() +
                                 "\n视频标题:" + bilibiliVideo.getTitle());
 
-                sender.SENDER.sendPrivateMsg(msg,
+                sender.SENDER.sendGroupMsg(msg.getGroupCode(),
                         KQCodeUtils.getInstance().toCq("image", "file" + "=" +
                                 bilibiliVideo.getPic().getAbsolutePath()));
             }
@@ -55,9 +56,9 @@ public class BilibiliListener {
     }
 
     //av号bv号转换
-    @Listen(MsgGetTypes.privateMsg)
+    @Listen(MsgGetTypes.groupMsg)
     @Filter(value = {"a", "A", "b", "B"}, keywordMatchType = KeywordMatchType.TRIM_STARTS_WITH)
-    public void avBv(PrivateMsg msg, MsgSender sender) {
+    public void avBv(GroupMsg msg, MsgSender sender) {
         String substring = msg.getMsg();
         String av;
         String bv;
@@ -69,39 +70,43 @@ public class BilibiliListener {
             bv = substring;
         }
 
-        sender.SENDER.sendPrivateMsg(msg, av + bv);
+        sender.SENDER.sendGroupMsg(msg.getGroupCode(), av + bv);
     }
 
     //查询直播状态
-    @Listen(MsgGetTypes.privateMsg)
+    @Listen(MsgGetTypes.groupMsg)
     @Filter(value = {"直播"}, keywordMatchType = KeywordMatchType.TRIM_STARTS_WITH)
-    public void searchLive(PrivateMsg msg, MsgSender sender) {
+    public void searchLive(GroupMsg msg, MsgSender sender) {
         String mid = msg.getMsg().substring(2).trim();
         BilibiliLive bilibiliLive = liveHashMap.get(mid);
         if (bilibiliLive == null) {
             try {
                 bilibiliLive = new BilibiliLive(mid);
             } catch (IOException e) {
-                sender.SENDER.sendPrivateMsg(msg, "网络链接错误，请稍后再试");
+                if (e.getMessage().contains("412")) {
+                    sender.SENDER.sendGroupMsg(msg.getGroupCode(), "Cookie过期");
+                } else {
+                    sender.SENDER.sendGroupMsg(msg.getGroupCode(), "网络链接错误，请稍后再试");
+                }
                 return;
             }
         }
 
         if (bilibiliLive.getRoomStatus() == 0) {
-            sender.SENDER.sendPrivateMsg(msg, "该用户还未开通直播间");
+            sender.SENDER.sendGroupMsg(msg.getGroupCode(), "该用户还未开通直播间");
             return;
         }
 
         if (bilibiliLive.getLiveStatus() == 0) {
             if (bilibiliLive.getRoundStatus() == 1) {
-                sender.SENDER.sendPrivateMsg(msg, "在轮播中");
+                sender.SENDER.sendGroupMsg(msg.getGroupCode(), "在轮播中");
             } else {
-                sender.SENDER.sendPrivateMsg(msg, "还未开播");
+                sender.SENDER.sendGroupMsg(msg.getGroupCode(), "还未开播");
             }
         } else {
-            sender.SENDER.sendPrivateMsg(msg, "标题:" + bilibiliLive.getTitle() +
+            sender.SENDER.sendGroupMsg(msg.getGroupCode(), "标题:" + bilibiliLive.getTitle() +
                     "人气值:" + bilibiliLive.getOnline() + "链接:" + bilibiliLive.getUrl());
-            sender.SENDER.sendPrivateMsg(msg,
+            sender.SENDER.sendGroupMsg(msg.getGroupCode(),
                     KQCodeUtils.getInstance().toCq("image", "file" + "=" +
                             bilibiliLive.getCover().getAbsolutePath()));
         }
