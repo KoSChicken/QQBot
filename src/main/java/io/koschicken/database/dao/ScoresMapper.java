@@ -52,4 +52,7 @@ public interface ScoresMapper extends BaseMapper<Scores> {
 
     @Select("select * from Scores where groupCode like #{groupCode} order by score desc limit 10")
     List<Scores> rank(@Param("groupCode") String groupCode);
+
+    @Select("select groupCode from Scores where live1 = #{mid} or live2 = #{mid} or live3 = #{mid}")
+    List<String> groupCodeByMid(@Param("mid") String mid);
 }

@@ -12,7 +12,6 @@ import io.koschicken.database.bean.Scores;
 import io.koschicken.database.service.ScoresService;
 import io.koschicken.utils.bilibili.BilibiliLive;
 import io.koschicken.utils.bilibili.BilibiliVideo;
-import io.koschicken.utils.bilibili.BvAndAv;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
@@ -26,7 +25,7 @@ public class BilibiliListener {
 
     public static HashMap<String, BilibiliLive> liveHashMap = new HashMap<>();
     @Autowired
-    ScoresService ScoresServiceImpl;
+    ScoresService scoresServiceImpl;
 
     //视频封面 av114514
     @Listen(MsgGetTypes.groupMsg)
@@ -55,23 +54,23 @@ public class BilibiliListener {
         }
     }
 
-    //av号bv号转换
-    @Listen(MsgGetTypes.groupMsg)
-    @Filter(value = {"a", "A", "b", "B"}, keywordMatchType = KeywordMatchType.TRIM_STARTS_WITH)
-    public void avBv(GroupMsg msg, MsgSender sender) {
-        String substring = msg.getMsg();
-        String av;
-        String bv;
-        if (substring.charAt(0) == 'a' || substring.charAt(0) == 'A') {
-            av = substring;
-            bv = BvAndAv.v2b(substring);
-        } else {
-            av = BvAndAv.b2v(substring);
-            bv = substring;
-        }
-
-        sender.SENDER.sendGroupMsg(msg.getGroupCode(), av + bv);
-    }
+//    //av号bv号转换
+//    @Listen(MsgGetTypes.groupMsg)
+//    @Filter(value = {"a", "A", "b", "B"}, keywordMatchType = KeywordMatchType.TRIM_STARTS_WITH)
+//    public void avBv(GroupMsg msg, MsgSender sender) {
+//        String substring = msg.getMsg();
+//        String av;
+//        String bv;
+//        if (substring.charAt(0) == 'a' || substring.charAt(0) == 'A') {
+//            av = substring;
+//            bv = BvAndAv.v2b(substring);
+//        } else {
+//            av = BvAndAv.b2v(substring);
+//            bv = substring;
+//        }
+//
+//        sender.SENDER.sendGroupMsg(msg.getGroupCode(), av + bv);
+//    }
 
     //查询直播状态
     @Listen(MsgGetTypes.groupMsg)
@@ -121,39 +120,41 @@ public class BilibiliListener {
         while (matcher.find()) {
             sb.append(matcher.group(0));
         }
-        int i = ScoresServiceImpl.setLive(msg.getCodeNumber(), sb.toString());
+        int i = scoresServiceImpl.setLive(msg.getCodeNumber(), sb.toString());
         if (i == -1) {
             sender.SENDER.sendPrivateMsg(msg, "槽位已满，请去掉一个");
         } else {
             sender.SENDER.sendPrivateMsg(msg, "已添加，记录在" + i + "号槽上");
         }
         //开始监听直播间
-
+        addLive(sb.toString());
     }
 
     @Listen(MsgGetTypes.privateMsg)
     @Filter(value = {"查看开播提示"}, keywordMatchType = KeywordMatchType.TRIM_EQUALS)
     public void getLive(PrivateMsg msg, MsgSender sender) {
-        Scores scores = ScoresServiceImpl.getById(msg.getCodeNumber());
+        Scores scores = scoresServiceImpl.getById(msg.getCodeNumber());
         if (scores == null) {
             sender.SENDER.sendPrivateMsg(msg, "还没有关注的主播哦");
         } else {
-            sender.SENDER.sendPrivateMsg(msg, "开启状态:" +
-                    scores.getLiveON() + "\n一号槽：uid" + scores.getLive1() + "\n二号槽：uid" +
-                    scores.getLive2() + "\n三号槽：uid" + scores.getLive3() + "\nuid为0的槽未则为为使用的槽");
+            sender.SENDER.sendPrivateMsg(msg, "开启状态:" + scores.getLiveON() +
+                    "\n一号槽：uid：" + scores.getLive1() +
+                    "\n二号槽：uid：" + scores.getLive2() +
+                    "\n三号槽：uid：" + scores.getLive3() +
+                    "\nuid为0的槽未则为为使用的槽");
         }
     }
 
     @Listen(MsgGetTypes.privateMsg)
-    @Filter(value = {"清除开播提示 "}, keywordMatchType = KeywordMatchType.TRIM_STARTS_WITH)
+    @Filter(value = {"清除开播提示"}, keywordMatchType = KeywordMatchType.TRIM_STARTS_WITH)
     public void clearLive(PrivateMsg msg, MsgSender sender) {
-        ScoresServiceImpl.clearLive(msg.getCodeNumber(), "live" + msg.getMsg().substring(6).trim());
+        scoresServiceImpl.clearLive(msg.getCodeNumber(), "live" + msg.getMsg().substring(6).trim());
     }
 
     @Listen(MsgGetTypes.privateMsg)
-    @Filter(value = {"开启开播提示 "}, keywordMatchType = KeywordMatchType.TRIM_STARTS_WITH)
+    @Filter(value = {"开启开播提示"}, keywordMatchType = KeywordMatchType.TRIM_STARTS_WITH)
     public void openLive(PrivateMsg msg, MsgSender sender) {
-        int i = ScoresServiceImpl.updateLiveOn(msg.getCodeNumber(), true);
+        int i = scoresServiceImpl.updateLiveOn(msg.getCodeNumber(), true);
         if (i < 1) {
             sender.SENDER.sendPrivateMsg(msg, "还没有直播关注记录");
         } else {
@@ -162,9 +163,9 @@ public class BilibiliListener {
     }
 
     @Listen(MsgGetTypes.privateMsg)
-    @Filter(value = {"关闭开播提示 "}, keywordMatchType = KeywordMatchType.TRIM_STARTS_WITH)
+    @Filter(value = {"关闭开播提示"}, keywordMatchType = KeywordMatchType.TRIM_STARTS_WITH)
     public void closeLive(PrivateMsg msg, MsgSender sender) {
-        int i = ScoresServiceImpl.updateLiveOn(msg.getCodeNumber(), false);
+        int i = scoresServiceImpl.updateLiveOn(msg.getCodeNumber(), false);
         if (i < 1) {
             sender.SENDER.sendPrivateMsg(msg, "还没有直播关注记录");
         } else {

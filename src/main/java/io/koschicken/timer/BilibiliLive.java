@@ -12,6 +12,7 @@ import org.springframework.stereotype.Component;
 
 import java.io.IOException;
 import java.util.HashMap;
+import java.util.HashSet;
 import java.util.List;
 import java.util.Set;
 
@@ -21,7 +22,7 @@ import static io.koschicken.listener.BilibiliListener.liveHashMap;
 @EnableScheduling//可以在启动类上注解也可以在当前文件
 public class BilibiliLive {
     @Autowired
-    ScoresService ScoresServiceImpl;
+    ScoresService scoresServiceImpl;
     @Autowired
     BotManager botManager;
 
@@ -46,28 +47,39 @@ public class BilibiliLive {
         }
         BotSender msgSender = botManager.defaultBot().getSender();
 
-        List<Scores> livepeople = ScoresServiceImpl.getLive();
+        List<Scores> livePeople = scoresServiceImpl.getLive();
         StringBuilder stringBuilder = new StringBuilder();
         io.koschicken.utils.bilibili.BilibiliLive live1, live2, live3;
-        for (Scores people : livepeople) {
+        for (Scores people : livePeople) {
             stringBuilder.delete(0, stringBuilder.length());
+            Set<String> groupSet = new HashSet<>();
             if (people.getLive1() != 0) {
+                groupSet.addAll(scoresServiceImpl.groupCodeByMid(String.valueOf(people.getLive1())));
                 live1 = live.get(people.getLive1().toString());
                 if (live1 != null)
-                    stringBuilder.append("主播开播辣\n标题").append(live1.getTitle()).append("\n链接").append(live1.getUrl()).append("\n").append(KQCodeUtils.getInstance().toCq("image", "file" + "=" + live1.getCover().getAbsolutePath())).append("\n");
+                    stringBuilder.append("开播啦！\n标题：").append(live1.getTitle()).append("\n链接：").append(live1.getUrl()).append("\n")
+                            .append(KQCodeUtils.getInstance().toCq("image", "file" + "=" + live1.getCover().getAbsolutePath()))
+                            .append("\n");
             }
             if (people.getLive2() != 0) {
+                groupSet.addAll(scoresServiceImpl.groupCodeByMid(String.valueOf(people.getLive2())));
                 live2 = live.get(people.getLive2().toString());
                 if (live2 != null)
-                    stringBuilder.append(live2.getTitle()).append("\n").append(live2.getUrl()).append(KQCodeUtils.getInstance().toCq("image", "file" + "=" + live2.getCover().getAbsolutePath())).append("\n");
+                    stringBuilder.append("标题：").append(live2.getTitle()).append("\n链接：").append(live2.getUrl()).append("\n")
+                            .append(KQCodeUtils.getInstance().toCq("image", "file" + "=" + live2.getCover().getAbsolutePath()))
+                            .append("\n");
             }
             if (people.getLive3() != 0) {
+                groupSet.addAll(scoresServiceImpl.groupCodeByMid(String.valueOf(people.getLive3())));
                 live3 = live.get(people.getLive3().toString());
                 if (live3 != null)
-                    stringBuilder.append(live3.getTitle()).append("\n").append(live3.getUrl()).append(KQCodeUtils.getInstance().toCq("image", "file" + "=" + live3.getCover().getAbsolutePath()));
+                    stringBuilder.append("标题：").append(live3.getTitle()).append("\n链接：").append(live3.getUrl()).append("\n")
+                            .append(KQCodeUtils.getInstance().toCq("image", "file" + "=" + live3.getCover().getAbsolutePath()));
             }
             if (stringBuilder.length() > 0) {
-                msgSender.SENDER.sendPrivateMsg(String.valueOf(people.getQQ()), stringBuilder.toString());
+                for (String groupCode : groupSet) {
+                    msgSender.SENDER.sendGroupMsg(groupCode, stringBuilder.toString());
+                }
             }
         }
     }

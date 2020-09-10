@@ -101,4 +101,9 @@ public class ScoresServiceImpl extends ServiceImpl<ScoresMapper, Scores> impleme
     public List<Scores> rank(String groupCode) {
         return scoresMapper.rank(groupCode);
     }
+
+    @Override
+    public List<String> groupCodeByMid(String mid) {
+        return scoresMapper.groupCodeByMid(mid);
+    }
 }
