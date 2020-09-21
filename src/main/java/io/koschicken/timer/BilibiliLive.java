@@ -57,6 +57,7 @@ public class BilibiliLive {
         StringBuilder stringBuilder = new StringBuilder();
         io.koschicken.utils.bilibili.BilibiliLive live1, live2, live3;
         for (Scores people : livePeople) {
+            LOGGER.info("people = {}", people);
             stringBuilder.delete(0, stringBuilder.length());
             Set<String> groupSet = new HashSet<>();
             if (people.getLive1() != 0) {
@@ -85,6 +86,7 @@ public class BilibiliLive {
                             .append(KQCodeUtils.getInstance().toCq("image", "file" + "=" + live3.getCover().getAbsolutePath()));
                 }
             }
+            LOGGER.info("群友{}的提醒消息为{}", people.getQQ(), stringBuilder.toString());
             if (stringBuilder.length() > 0) {
                 for (String groupCode : groupSet) {
                     msgSender.SENDER.sendGroupMsg(groupCode, stringBuilder.toString());
