@@ -1,7 +1,5 @@
 package io.koschicken.timer;
 
-//提醒买药小助手
-
 import io.koschicken.database.service.ScoresService;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;

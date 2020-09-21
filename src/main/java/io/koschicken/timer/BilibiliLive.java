@@ -5,6 +5,8 @@ import com.forte.qqrobot.bot.BotSender;
 import com.simplerobot.modules.utils.KQCodeUtils;
 import io.koschicken.database.bean.Scores;
 import io.koschicken.database.service.ScoresService;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.scheduling.annotation.EnableScheduling;
 import org.springframework.scheduling.annotation.Scheduled;
@@ -21,6 +23,9 @@ import static io.koschicken.listener.BilibiliListener.liveHashMap;
 @Component
 @EnableScheduling
 public class BilibiliLive {
+
+    private final static Logger LOGGER = LoggerFactory.getLogger(BilibiliLive.class);
+
     @Autowired
     ScoresService scoresServiceImpl;
     @Autowired
@@ -28,6 +33,7 @@ public class BilibiliLive {
 
     @Scheduled(cron = "0/20 * * * * ? ")
     public void execute() {
+        LOGGER.info("直播提醒正在运行......");
         Set<String> strings = liveHashMap.keySet();
         HashMap<String, io.koschicken.utils.bilibili.BilibiliLive> live = new HashMap<>();
         io.koschicken.utils.bilibili.BilibiliLive cache;

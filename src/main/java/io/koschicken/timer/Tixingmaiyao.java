@@ -1,12 +1,12 @@
 package io.koschicken.timer;
 
-//提醒买药小助手
-
-import com.forte.qqrobot.anno.timetask.CronTask;
-import com.forte.qqrobot.sender.MsgSender;
-import com.forte.qqrobot.timetask.TimeJob;
-import com.forte.qqrobot.utils.CQCodeUtil;
+import com.forte.qqrobot.bot.BotManager;
+import com.forte.qqrobot.bot.BotSender;
 import com.simplerobot.modules.utils.KQCodeUtils;
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.scheduling.annotation.EnableScheduling;
+import org.springframework.scheduling.annotation.Scheduled;
+import org.springframework.stereotype.Component;
 import org.springframework.util.ResourceUtils;
 
 import java.io.File;
@@ -16,10 +16,16 @@ import java.util.Set;
 import static io.koschicken.Constants.princessConfig;
 import static io.koschicken.listener.PrincessIntercept.On;
 
-@CronTask("0 0 0,6,12,18 * * ?")
-public class Tixingmaiyao implements TimeJob {
-    @Override
-    public void execute(MsgSender msgSender, CQCodeUtil cqCodeUtil) {
+@Component
+@EnableScheduling
+public class Tixingmaiyao {
+
+    @Autowired
+    BotManager botManager;
+
+    @Scheduled(cron = "0 0 0,6,12,18 * * ?")
+    public void execute() {
+        BotSender msgSender = botManager.defaultBot().getSender();
         try {
             File file = ResourceUtils.getFile(ResourceUtils.CLASSPATH_URL_PREFIX + "image/" + princessConfig.getTixingmaiyao());
             String str;
