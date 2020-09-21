@@ -54,29 +54,11 @@ public class BilibiliListener {
         }
     }
 
-//    //av号bv号转换
-//    @Listen(MsgGetTypes.groupMsg)
-//    @Filter(value = {"a", "A", "b", "B"}, keywordMatchType = KeywordMatchType.TRIM_STARTS_WITH)
-//    public void avBv(GroupMsg msg, MsgSender sender) {
-//        String substring = msg.getMsg();
-//        String av;
-//        String bv;
-//        if (substring.charAt(0) == 'a' || substring.charAt(0) == 'A') {
-//            av = substring;
-//            bv = BvAndAv.v2b(substring);
-//        } else {
-//            av = BvAndAv.b2v(substring);
-//            bv = substring;
-//        }
-//
-//        sender.SENDER.sendGroupMsg(msg.getGroupCode(), av + bv);
-//    }
-
     //查询直播状态
     @Listen(MsgGetTypes.groupMsg)
-    @Filter(value = {"直播"}, keywordMatchType = KeywordMatchType.TRIM_STARTS_WITH)
+    @Filter(value = {"#直播"}, keywordMatchType = KeywordMatchType.TRIM_STARTS_WITH)
     public void searchLive(GroupMsg msg, MsgSender sender) {
-        String mid = msg.getMsg().substring(2).trim();
+        String mid = msg.getMsg().substring(3).trim();
         BilibiliLive bilibiliLive = liveHashMap.get(mid);
         if (bilibiliLive == null) {
             try {
@@ -90,12 +72,10 @@ public class BilibiliListener {
                 return;
             }
         }
-
         if (bilibiliLive.getRoomStatus() == 0) {
             sender.SENDER.sendGroupMsg(msg.getGroupCode(), "该用户还未开通直播间");
             return;
         }
-
         if (bilibiliLive.getLiveStatus() == 0) {
             if (bilibiliLive.getRoundStatus() == 1) {
                 sender.SENDER.sendGroupMsg(msg.getGroupCode(), "在轮播中");
@@ -103,11 +83,9 @@ public class BilibiliListener {
                 sender.SENDER.sendGroupMsg(msg.getGroupCode(), "还未开播");
             }
         } else {
-            sender.SENDER.sendGroupMsg(msg.getGroupCode(), "标题:" + bilibiliLive.getTitle() +
-                    "人气值:" + bilibiliLive.getOnline() + "链接:" + bilibiliLive.getUrl());
-            sender.SENDER.sendGroupMsg(msg.getGroupCode(),
-                    KQCodeUtils.getInstance().toCq("image", "file" + "=" +
-                            bilibiliLive.getCover().getAbsolutePath()));
+            sender.SENDER.sendGroupMsg(msg.getGroupCode(), "开播啦！\n标题:" + bilibiliLive.getTitle() +
+                    "\n链接:" + bilibiliLive.getUrl() + KQCodeUtils.getInstance()
+                    .toCq("image", "file=" + bilibiliLive.getCover().getAbsolutePath()));
         }
     }
 

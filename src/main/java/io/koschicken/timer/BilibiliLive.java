@@ -19,14 +19,14 @@ import java.util.Set;
 import static io.koschicken.listener.BilibiliListener.liveHashMap;
 
 @Component
-@EnableScheduling//可以在启动类上注解也可以在当前文件
+@EnableScheduling
 public class BilibiliLive {
     @Autowired
     ScoresService scoresServiceImpl;
     @Autowired
     BotManager botManager;
 
-    @Scheduled(cron = "0 0/1 * * * ? ")
+    @Scheduled(cron = "0/20 * * * * ? ")
     public void execute() {
         Set<String> strings = liveHashMap.keySet();
         HashMap<String, io.koschicken.utils.bilibili.BilibiliLive> live = new HashMap<>();
@@ -56,25 +56,28 @@ public class BilibiliLive {
             if (people.getLive1() != 0) {
                 groupSet.addAll(scoresServiceImpl.groupCodeByMid(String.valueOf(people.getLive1())));
                 live1 = live.get(people.getLive1().toString());
-                if (live1 != null)
+                if (live1 != null) {
                     stringBuilder.append("开播啦！\n标题：").append(live1.getTitle()).append("\n链接：").append(live1.getUrl()).append("\n")
                             .append(KQCodeUtils.getInstance().toCq("image", "file" + "=" + live1.getCover().getAbsolutePath()))
                             .append("\n");
+                }
             }
             if (people.getLive2() != 0) {
                 groupSet.addAll(scoresServiceImpl.groupCodeByMid(String.valueOf(people.getLive2())));
                 live2 = live.get(people.getLive2().toString());
-                if (live2 != null)
+                if (live2 != null) {
                     stringBuilder.append("标题：").append(live2.getTitle()).append("\n链接：").append(live2.getUrl()).append("\n")
                             .append(KQCodeUtils.getInstance().toCq("image", "file" + "=" + live2.getCover().getAbsolutePath()))
                             .append("\n");
+                }
             }
             if (people.getLive3() != 0) {
                 groupSet.addAll(scoresServiceImpl.groupCodeByMid(String.valueOf(people.getLive3())));
                 live3 = live.get(people.getLive3().toString());
-                if (live3 != null)
+                if (live3 != null) {
                     stringBuilder.append("标题：").append(live3.getTitle()).append("\n链接：").append(live3.getUrl()).append("\n")
                             .append(KQCodeUtils.getInstance().toCq("image", "file" + "=" + live3.getCover().getAbsolutePath()));
+                }
             }
             if (stringBuilder.length() > 0) {
                 for (String groupCode : groupSet) {

@@ -1,6 +1,7 @@
 package io.koschicken.utils.bilibili;
 
 import com.alibaba.fastjson.JSONObject;
+import com.gargoylesoftware.htmlunit.util.UrlUtils;
 import io.koschicken.utils.ApiConnect;
 import org.apache.commons.io.FileUtils;
 import org.apache.http.client.fluent.Request;
@@ -10,6 +11,8 @@ import java.io.IOException;
 import java.net.URL;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
+
+import static org.springframework.util.ResourceUtils.isUrl;
 
 public class BilibiliLive {
     private static final String TEMP = "./temp/bili/Live/";
@@ -63,22 +66,30 @@ public class BilibiliLive {
         String live = getLive(mid);
         JSONObject jsonObject = JSONObject.parseObject(live);
         JSONObject data = jsonObject.getJSONObject("data");
-        roomStatus = data.getInteger("roomStatus");
-        roundStatus = data.getInteger("roundStatus");
-        liveStatus = data.getInteger("liveStatus");
-        url = data.getString("url");
-        title = data.getString("title");
-        online = data.getInteger("online");
-        roomId = data.getInteger("roomid");
+        if (data != null) {
+            roomStatus = data.getInteger("roomStatus");
+            if (roomStatus == 0) {
+                return; // 无房间
+            }
+            roundStatus = data.getInteger("roundStatus");
+            liveStatus = data.getInteger("liveStatus");
+            url = data.getString("url");
+            title = data.getString("title");
+            online = data.getInteger("online");
+            roomId = data.getInteger("roomid");
 
-        String fileName = getImageName(data.getString("cover"));
-        if (cover == null || cover.getName().equals(fileName)) {
-            cover = new File(TEMP + fileName);
-            cover.getParentFile().mkdirs();
-            cover.delete();
-            cover.createNewFile();
-            URL imageUrl = new URL(data.getString("cover"));
-            FileUtils.copyURLToFile(imageUrl, cover);
+            boolean isUrl = isUrl(data.getString("cover"));
+            if (isUrl) {
+                String fileName = getImageName(data.getString("cover"));
+                if (this.cover == null || this.cover.getName().equals(fileName)) {
+                    this.cover = new File(TEMP + fileName);
+                    this.cover.getParentFile().mkdirs();
+                    this.cover.delete();
+                    this.cover.createNewFile();
+                    URL imageUrl = new URL(data.getString("cover"));
+                    FileUtils.copyURLToFile(imageUrl, this.cover);
+                }
+            }
         }
     }
 
@@ -130,6 +141,6 @@ public class BilibiliLive {
     }
 
     public static void main(String[] args) throws IOException {
-        BilibiliLive bilibiliLive = new BilibiliLive("3608148");
+        BilibiliLive bilibiliLive = new BilibiliLive("");
     }
 }
