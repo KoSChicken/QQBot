@@ -15,6 +15,7 @@ public class ScoresServiceImpl extends ServiceImpl<ScoresMapper, Scores> impleme
     @Autowired
     ScoresMapper scoresMapper;
 
+    @Override
     public void clearSign() {
         scoresMapper.changeTeamSum();
     }
@@ -100,5 +101,10 @@ public class ScoresServiceImpl extends ServiceImpl<ScoresMapper, Scores> impleme
     @Override
     public List<Scores> rank(String groupCode) {
         return scoresMapper.rank(groupCode);
+    }
+
+    @Override
+    public List<String> groupCodeByMid(String mid) {
+        return scoresMapper.groupCodeByMid(mid);
     }
 }

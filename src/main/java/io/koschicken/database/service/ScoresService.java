@@ -33,4 +33,6 @@ public interface ScoresService extends IService<Scores> {
     Long findQQByNickname(String nickname);
 
     List<Scores> rank(String groupCode);
+
+    List<String> groupCodeByMid(String mid);
 }

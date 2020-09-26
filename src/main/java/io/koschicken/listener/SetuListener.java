@@ -131,7 +131,7 @@ public class SetuListener {
                 }
             } else {
                 sender.SENDER.sendGroupMsg(msg.getGroupCode(), coolQAt + msg.getQQCode() + "]" +
-                        "你没钱了，请发送#签到获取今日5000币，如果已获取过请明天再来吧");
+                        "你没钱了，请尝试签到或找开发者PY");
             }
         } else {
             sender.SENDER.sendGroupMsg(msg.getGroupCode(), "叫车CD中...");
@@ -145,10 +145,9 @@ public class SetuListener {
         scores.setScore(0);
         scoresServiceImpl.save(scores);
         sender.SENDER.sendGroupMsg(msg.getGroupCode(), coolQAt + msg.getQQCode() + "]" +
-                "你没钱了，请发送#签到获取今日5000币，如果已获取过请明天再来吧");
+                "你没钱了，请尝试签到或找开发者PY");
     }
 
-    @SuppressWarnings("unused")
     private void groupMember(GroupMsg msg, MsgSender sender, Long QQ) {
         String AVATAR_API = "http://thirdqq.qlogo.cn/g?b=qq&nk=";
         String api = AVATAR_API + QQ.toString() + "&s=640";
@@ -160,8 +159,7 @@ public class SetuListener {
             LOGGER.info(pic.getAbsolutePath());
             String message = cqCodeImage.toString();
             sender.SENDER.sendGroupMsg(msg.getGroupCode(), message);
-            boolean delete = pic.delete();
-            //LOGGER.info("文件删除成功了吗？{}", delete);
+            pic.delete();
         } catch (IOException e) {
             e.printStackTrace();
         }
