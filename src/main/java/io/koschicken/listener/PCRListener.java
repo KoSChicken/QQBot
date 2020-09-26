@@ -358,8 +358,8 @@ public class PCRListener {
         if (canSendImage) {
             int total = r + sr + ssr;
             if (total == 1 || total == 10) { // 仅在单抽或十连的情况下才显示动画
-                for (int i = 0; i < list.size(); i++) {
-                    File file = new File("./config/gif/" + list.get(i) + ".gif");
+                for (String s : list) {
+                    File file = new File("./config/gif/" + s + ".gif");
                     CQCode cqCode_image = CQCodeUtil.build().getCQCode_Image(file.getAbsolutePath());
                     stringBuilder.append(cqCode_image.toString());
 //                    if (i > 2) {

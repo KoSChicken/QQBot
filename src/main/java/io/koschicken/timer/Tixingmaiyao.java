@@ -21,13 +21,13 @@ public class Tixingmaiyao implements TimeJob {
     @Override
     public void execute(MsgSender msgSender, CQCodeUtil cqCodeUtil) {
         try {
-            File file = ResourceUtils.getFile(ResourceUtils.CLASSPATH_URL_PREFIX + "image/" + princessConfig.getTixingmaiyao());
+            File file = new File("./image/" + princessConfig.getTixingmaiyao());
             String str;
             if (file.exists()) {
                 KQCodeUtils kqCodeUtils = KQCodeUtils.getInstance();
-                str = kqCodeUtils.toCq("image", "file" + "=" + file.getAbsolutePath());
+                str = kqCodeUtils.toCq("image", "file=" + file.getAbsolutePath());
             } else {
-                str = "图片又找不到了cnmd";
+                str = "图片找不到了cnmd";
             }
             Set<String> strings = On.keySet();
             for (String s : strings) {
@@ -35,7 +35,7 @@ public class Tixingmaiyao implements TimeJob {
                     msgSender.SENDER.sendGroupMsg(s, "我是每日提醒买药小助手，请和我一起做每天买满4次药的大人吧\n" + str);
                 }
             }
-        } catch (NullPointerException | FileNotFoundException e) {
+        } catch (NullPointerException e) {
             e.printStackTrace();
         }
     }
