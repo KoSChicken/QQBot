@@ -24,7 +24,6 @@ public class PrincessIntercept implements MsgIntercept {
                 if (!(On.get(((GroupMsg) context.getMsgGet()).getGroupCode())).isGlobalSwitch()) {
                     return isOpen(context.getMsgGet().getMsg());
                 }
-
                 //抽卡消息过滤
                 if (isChouKa(context.getMsgGet().getMsg())) {
                     return On.get(((GroupMsg) context.getMsgGet()).getGroupCode()).isGachaSwitch();
@@ -51,6 +50,6 @@ public class PrincessIntercept implements MsgIntercept {
     }
 
     public boolean isOpen(String msg) {
-        return msg.equals("#开启PcrTool");
+        return "#开启PcrTool".equals(msg);
     }
 }
