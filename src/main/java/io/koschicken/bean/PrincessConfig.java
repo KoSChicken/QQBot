@@ -13,13 +13,14 @@ public class PrincessConfig {
     private int setuCoin;//发一次图给的钱
     private String loliconApiKey; //loliconApi的APIKEY
     private boolean r18Private; //r18图片的私聊开关
+    private String bilibiliCookie; //r18图片的私聊开关
 
     public PrincessConfig() {
     }
 
-    public PrincessConfig(String tixingmaiyao, int gachaLimit, int gachaCooldown,
-                          boolean globalSwitch, boolean gachaSwitch, boolean maiyaoSwitch, boolean horseSwitch,
-                          String masterQQ, int signCoin, int setuCoin, String loliconApiKey, boolean r18Private) {
+    public PrincessConfig(String tixingmaiyao, int gachaLimit, int gachaCooldown, boolean globalSwitch,
+                          boolean gachaSwitch, boolean maiyaoSwitch, boolean horseSwitch, String masterQQ,
+                          int signCoin, int setuCoin, String loliconApiKey, boolean r18Private, String bilibiliCookie) {
         this.tixingmaiyao = tixingmaiyao;
         this.gachaLimit = gachaLimit;
         this.gachaCooldown = gachaCooldown;
@@ -32,6 +33,7 @@ public class PrincessConfig {
         this.setuCoin = setuCoin;
         this.loliconApiKey = loliconApiKey;
         this.r18Private = r18Private;
+        this.bilibiliCookie = bilibiliCookie;
     }
 
     public String getTixingmaiyao() {
@@ -130,6 +132,14 @@ public class PrincessConfig {
         this.r18Private = r18Private;
     }
 
+    public String getBilibiliCookie() {
+        return bilibiliCookie;
+    }
+
+    public void setBilibiliCookie(String bilibiliCookie) {
+        this.bilibiliCookie = bilibiliCookie;
+    }
+
     @Override
     public String toString() {
         return "PrincessConfig{" +
@@ -140,8 +150,12 @@ public class PrincessConfig {
                 ", gachaSwitch=" + gachaSwitch +
                 ", maiyaoSwitch=" + maiyaoSwitch +
                 ", horseSwitch=" + horseSwitch +
+                ", masterQQ='" + masterQQ + '\'' +
                 ", signCoin=" + signCoin +
                 ", setuCoin=" + setuCoin +
+                ", loliconApiKey='" + loliconApiKey + '\'' +
+                ", r18Private=" + r18Private +
+                ", bilibiliCookie='" + bilibiliCookie + '\'' +
                 '}';
     }
 }

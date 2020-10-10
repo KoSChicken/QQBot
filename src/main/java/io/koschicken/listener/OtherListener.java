@@ -13,6 +13,7 @@ import com.forte.qqrobot.utils.CQCodeUtil;
 import io.koschicken.bean.GroupPower;
 import io.koschicken.database.service.ScoresService;
 import org.apache.commons.io.FileUtils;
+import org.apache.commons.lang3.StringUtils;
 import org.apache.http.client.fluent.Request;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -223,6 +224,7 @@ public class OtherListener {
                 "\n扭蛋开关默认：" + princessConfig.isGachaSwitch() +
                 "\n赛马开关默认：" + princessConfig.isHorseSwitch() +
                 "\nr18私聊开关默认：" + princessConfig.isR18Private() +
+                "\nB站：" + StringUtils.isEmpty(princessConfig.getBilibiliCookie()) +
                 "\nmasterQQ：" + princessConfig.getMasterQQ());
     }
 

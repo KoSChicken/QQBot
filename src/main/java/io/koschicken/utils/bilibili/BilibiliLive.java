@@ -10,6 +10,7 @@ import java.net.URL;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
+import static io.koschicken.Constants.princessConfig;
 import static org.springframework.util.ResourceUtils.isUrl;
 
 public class BilibiliLive {
@@ -56,7 +57,7 @@ public class BilibiliLive {
     public static String get(String getUrl) throws IOException {
         return Request.Get(getUrl)
                 .setHeader("User-Agent", "Mozilla/5.0 (Windows NT 10.0; Win64; x64; rv:80.0) Gecko/20100101 Firefox/80.0")
-                .setHeader("Cookie", "rpdid=|(J~J|~RYY|u0J'ulm)RJuk|); CURRENT_FNVAL=80; DedeUserID=3296738; DedeUserID__ckMd5=397237cbc6b76925; SESSDATA=2e0c1597%2C1613983281%2C63055*81; bili_jct=a4f032287e89756d472ebb5681ea1c06; _uuid=E470E331-A9AF-033D-563D-54B3E34FAF3578688infoc; buvid3=7D8D2A43-0489-4249-B4C7-9E822367B46D138400infoc; bp_t_offset_3296738=432855531470521572; bp_video_offset_3296738=433227909431220320; blackside_state=1; LIVE_BUVID=AUTO7415988509752319; sid=k5ut68jk; _dfcaptcha=76988dc476354d59bf1c0642d21a2f5c")
+                .setHeader("Cookie", princessConfig.getBilibiliCookie())
                 .execute().returnContent().asString();
     }
 
