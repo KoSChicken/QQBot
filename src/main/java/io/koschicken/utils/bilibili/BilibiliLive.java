@@ -1,8 +1,6 @@
 package io.koschicken.utils.bilibili;
 
 import com.alibaba.fastjson.JSONObject;
-import com.gargoylesoftware.htmlunit.util.UrlUtils;
-import io.koschicken.utils.ApiConnect;
 import org.apache.commons.io.FileUtils;
 import org.apache.http.client.fluent.Request;
 
@@ -81,11 +79,11 @@ public class BilibiliLive {
             boolean isUrl = isUrl(data.getString("cover"));
             if (isUrl) {
                 String fileName = getImageName(data.getString("cover"));
-                if (this.cover == null || this.cover.getName().equals(fileName)) {
-                    this.cover = new File(TEMP + fileName);
-                    this.cover.getParentFile().mkdirs();
-                    this.cover.delete();
-                    this.cover.createNewFile();
+                if (cover == null || cover.getName().equals(fileName)) {
+                    cover = new File(TEMP + fileName);
+                    FileUtils.forceMkdir(cover.getParentFile());
+                    FileUtils.deleteQuietly(cover);
+                    FileUtils.touch(cover);
                     URL imageUrl = new URL(data.getString("cover"));
                     FileUtils.copyURLToFile(imageUrl, this.cover);
                 }

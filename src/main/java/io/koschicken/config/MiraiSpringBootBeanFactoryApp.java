@@ -8,8 +8,7 @@ import com.simbot.component.mirai.MiraiApp;
 import com.simbot.component.mirai.MiraiConfiguration;
 import com.simplerobot.core.springboot.configuration.SpringBootDependGetter;
 import io.koschicken.Constants;
-import org.apache.commons.lang3.StringUtils;
-import org.springframework.util.ResourceUtils;
+import org.apache.commons.io.FileUtils;
 
 import java.io.*;
 import java.nio.charset.StandardCharsets;
@@ -33,7 +32,12 @@ public class MiraiSpringBootBeanFactoryApp implements MiraiApp {
         // 整合Spring的DependGetter
         configuration.setDependGetter(dependGetter);
         // 登陆账户
-        String configDir = createConfigDir();
+        String configDir = null;
+        try {
+            configDir = createConfigDir();
+        } catch (IOException e) {
+            e.printStackTrace();
+        }
         File file = new File(configDir + "/qq.txt");
         Properties pro = new Properties();
         String profile;
@@ -114,10 +118,10 @@ public class MiraiSpringBootBeanFactoryApp implements MiraiApp {
         getGachaConfig();//扭蛋
     }
 
-    private String createConfigDir() {
+    private String createConfigDir() throws IOException {
         File file = new File("./config");
         if (!file.exists()) {
-            file.mkdirs();
+            FileUtils.forceMkdir(file);
         }
         return file.getAbsolutePath();
     }

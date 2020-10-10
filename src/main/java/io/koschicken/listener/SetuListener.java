@@ -35,7 +35,7 @@ import static io.koschicken.utils.SetuUtils.getSetu;
 @Service
 public class SetuListener {
     private static final Logger LOGGER = LoggerFactory.getLogger(SetuListener.class);
-    private static final String TEMP = "./temp/";
+    private static final String TEMP = "./temp/SETU/";
     private static final String ARTWORK_PREFIX = "https://www.pixiv.net/artworks/";
     private static final String ARTIST_PREFIX = "https://www.pixiv.net/users/";
     private static final int CD = 20;
@@ -57,6 +57,17 @@ public class SetuListener {
         NUMBER.put("九", 9);
         NUMBER.put("十", 10);
         NUMBER.put("几", RandomUtils.nextInt(1, 4));
+    }
+
+    static {
+        File setuFolder = new File(TEMP);
+        if (!setuFolder.exists()) {
+            try {
+                FileUtils.forceMkdir(setuFolder);
+            } catch (IOException e) {
+                e.printStackTrace();
+            }
+        }
     }
 
     @Autowired
@@ -159,7 +170,7 @@ public class SetuListener {
             LOGGER.info(pic.getAbsolutePath());
             String message = cqCodeImage.toString();
             sender.SENDER.sendGroupMsg(msg.getGroupCode(), message);
-            pic.delete();
+            FileUtils.deleteQuietly(pic);
         } catch (IOException e) {
             e.printStackTrace();
         }
@@ -317,10 +328,8 @@ public class SetuListener {
                     for (Pixiv p : setu) {
                         String filename = p.getFileName();
                         File pic;
-                        // URL imageUrl;
                         String imageUrl;
                         if (filename.contains("http")) {
-                            // imageUrl = new URL(filename);
                             imageUrl = filename;
                             pic = new File(TEMP + filename.substring(filename.lastIndexOf("/") + 1));
                         } else {
@@ -330,8 +339,9 @@ public class SetuListener {
                         InputStream content = Request.Get(imageUrl)
                                 .setHeader("User-Agent", "Mozilla/5.0 (Windows; U; Windows NT 5.1; zh-CN; rv:1.9.0.3) Gecko/2008092417 Firefox/3.0.3")
                                 .execute().returnResponse().getEntity().getContent();
-                        FileUtils.copyInputStreamToFile(content, pic);
-                        // FileUtils.copyURLToFile(imageUrl, pic);
+                        if (!pic.exists()) {
+                            FileUtils.copyInputStreamToFile(content, pic);
+                        }
                         // 发送图片
                         CQCode cqCodeImage = CQCodeUtil.build().getCQCode_Image(pic.getAbsolutePath());
                         String message = cqCodeImage.toString() + "\n" +

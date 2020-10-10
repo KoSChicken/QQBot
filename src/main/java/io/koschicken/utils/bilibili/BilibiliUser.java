@@ -10,17 +10,54 @@ import java.net.URL;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
+@SuppressWarnings("unused")
 public class BilibiliUser {
     private static final String TEMP = "./temp/bili/User/";
     private final String mid;
     private String uname;
-    private int room_id;
+    private int roomId;
     private File face;
     private String sign;
 
     public BilibiliUser(String mid) throws IOException {
         this.mid = mid;
         fresh();
+    }
+
+    public String getMid() {
+        return mid;
+    }
+
+    public String getUname() {
+        return uname;
+    }
+
+    public void setUname(String uname) {
+        this.uname = uname;
+    }
+
+    public int getRoomId() {
+        return roomId;
+    }
+
+    public void setRoomId(int roomId) {
+        this.roomId = roomId;
+    }
+
+    public File getFace() {
+        return face;
+    }
+
+    public void setFace(File face) {
+        this.face = face;
+    }
+
+    public String getSign() {
+        return sign;
+    }
+
+    public void setSign(String sign) {
+        this.sign = sign;
     }
 
     public static String get(String getUrl) {
@@ -68,23 +105,26 @@ public class BilibiliUser {
         JSONObject jsonObject = JSONObject.parseObject(user);
         JSONObject data = jsonObject.getJSONObject("data");
 
-        uname = data.getString("uname");
-        room_id = data.getInteger("uname");
+        uname = data.getString("name");
+        JSONObject liveRoom = data.getJSONObject("liveRoom");
+        if (liveRoom != null) {
+            roomId = liveRoom.getInteger("roomid");
+        }
         sign = data.getString("sign");
 
         String fileName = getImageName(data.getString("face"));
         if (face == null || face.getName().equals(fileName)) {
             face = new File(TEMP + fileName);
-            face.getParentFile().mkdirs();
-            face.delete();
-            face.createNewFile();
+            FileUtils.forceMkdir(face.getParentFile());
+            FileUtils.deleteQuietly(face);
+            FileUtils.touch(face);
             URL imageUrl = new URL(data.getString("face"));
             FileUtils.copyURLToFile(imageUrl, face);
         }
     }
 
     /**
-     * @param mid
+     * @param mid 用户ID
      * @return {"code":0,"message":"0","ttl":1,
      * "data":
      * {"mid":578227337,

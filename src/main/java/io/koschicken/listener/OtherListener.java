@@ -247,6 +247,24 @@ public class OtherListener {
         }
     }
 
+    @Listen(MsgGetTypes.privateMsg)
+    @Filter(value = {"清理临时文件夹"}, keywordMatchType = KeywordMatchType.TRIM_EQUALS)
+    public void clearTemp(PrivateMsg msg, MsgSender sender) throws IOException {
+        if (msg.getQQCode().equals(princessConfig.getMasterQQ())) {
+            File gachaFolder = new File("temp/gacha/");
+            if (gachaFolder.exists()) {
+                FileUtils.deleteDirectory(gachaFolder);
+            }
+            File bilibiliFolder = new File("temp/bili/");
+            if (bilibiliFolder.exists()) {
+                FileUtils.deleteDirectory(bilibiliFolder);
+            }
+            sender.SENDER.sendPrivateMsg(msg.getQQCode(), "清理成功");
+        } else {
+            sender.SENDER.sendPrivateMsg(msg.getQQCode(), "权限不足");
+        }
+    }
+
     @Listen(MsgGetTypes.groupMsg)
     @Filter(value = {"#讲几句难听的"}, keywordMatchType = KeywordMatchType.TRIM_EQUALS)
     public void zuichou(GroupMsg msg, MsgSender sender) {

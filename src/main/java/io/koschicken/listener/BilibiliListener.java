@@ -11,6 +11,7 @@ import com.simplerobot.modules.utils.KQCodeUtils;
 import io.koschicken.database.bean.Scores;
 import io.koschicken.database.service.ScoresService;
 import io.koschicken.utils.bilibili.BilibiliLive;
+import io.koschicken.utils.bilibili.BilibiliUser;
 import io.koschicken.utils.bilibili.BilibiliVideo;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
@@ -27,27 +28,45 @@ public class BilibiliListener {
     @Autowired
     ScoresService scoresServiceImpl;
 
+    //查询UP主
+    @Listen(MsgGetTypes.groupMsg)
+    @Filter(value = {"#UP主", "#up主"}, keywordMatchType = KeywordMatchType.TRIM_STARTS_WITH)
+    public void searchUp(GroupMsg msg, MsgSender sender) throws IOException {
+        String mid = msg.getMsg().substring(4).trim();
+        BilibiliUser bilibiliUser = new BilibiliUser(mid);
+        String message = "UP主：" + bilibiliUser.getUname();
+        if (bilibiliUser.getRoomId() != 0) {
+            message += "\n直播间：" + "https://live.bilibili.com/" + bilibiliUser.getRoomId();
+        }
+        message += "\n签名:" + bilibiliUser.getSign();
+        String image = KQCodeUtils.getInstance()
+                .toCq("image", "file=" + bilibiliUser.getFace().getAbsolutePath());
+        message += "\n" + image;
+        sender.SENDER.sendGroupMsg(msg.getGroupCode(), message);
+    }
+
     //视频封面 av114514
     @Listen(MsgGetTypes.groupMsg)
-    @Filter(value = "视频封面", keywordMatchType = KeywordMatchType.TRIM_STARTS_WITH)
+    @Filter(value = "#封面", keywordMatchType = KeywordMatchType.TRIM_STARTS_WITH)
     public void videoFace(GroupMsg msg, MsgSender sender) {
-        String av = msg.getMsg().substring(4).trim();
+        String videoCode = msg.getMsg().substring(3).trim();
+        String av = "", bv = "";
         try {
             BilibiliVideo bilibiliVideo = null;
-            if (av.startsWith("av") || av.startsWith("AV")) {
-                bilibiliVideo = new BilibiliVideo(av.substring(2), false);
-            } else if (av.startsWith("bv") || av.startsWith("BV")) {
-                bilibiliVideo = new BilibiliVideo(av.substring(2), true);
+            if (videoCode.startsWith("videoCode") || videoCode.startsWith("AV")) {
+                bilibiliVideo = new BilibiliVideo(videoCode.substring(2), false);
+                av = videoCode;
+                bv = bilibiliVideo.getBv();
+            } else if (videoCode.startsWith("bv") || videoCode.startsWith("BV")) {
+                bilibiliVideo = new BilibiliVideo(videoCode.substring(2), true);
+                av = bilibiliVideo.getAv();
+                bv = videoCode;
             }
             if (bilibiliVideo != null) {
+                String image = KQCodeUtils.getInstance()
+                        .toCq("image", "file=" + bilibiliVideo.getPic().getAbsolutePath());
                 sender.SENDER.sendGroupMsg(msg.getGroupCode(),
-                        "av号：" + av +
-                                "\nbv号：" + bilibiliVideo.getBv() +
-                                "\n视频标题:" + bilibiliVideo.getTitle());
-
-                sender.SENDER.sendGroupMsg(msg.getGroupCode(),
-                        KQCodeUtils.getInstance().toCq("image", "file" + "=" +
-                                bilibiliVideo.getPic().getAbsolutePath()));
+                        "av号：" + av + "\nbv号：" + bv + "\n视频标题:" + bilibiliVideo.getTitle() + "\n" + image);
             }
         } catch (IOException e) {
             e.printStackTrace();

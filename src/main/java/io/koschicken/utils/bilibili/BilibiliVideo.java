@@ -92,9 +92,9 @@ public class BilibiliVideo {
         String fileName = getImageName(data.getString("pic"));
         if (pic == null || pic.getName().equals(fileName)) {
             pic = new File(TEMP + fileName);
-            pic.getParentFile().mkdirs();
-            pic.delete();
-            pic.createNewFile();
+            FileUtils.forceMkdir(pic.getParentFile());
+            FileUtils.deleteQuietly(pic);
+            FileUtils.touch(pic);
             URL imageUrl = new URL(data.getString("pic"));
             FileUtils.copyURLToFile(imageUrl, pic);
         }
