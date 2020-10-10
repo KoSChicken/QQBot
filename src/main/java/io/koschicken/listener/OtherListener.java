@@ -4,7 +4,6 @@ import com.forte.qqrobot.anno.Filter;
 import com.forte.qqrobot.anno.Listen;
 import com.forte.qqrobot.beans.cqcode.CQCode;
 import com.forte.qqrobot.beans.messages.msgget.GroupMsg;
-import com.forte.qqrobot.beans.messages.msgget.MsgGet;
 import com.forte.qqrobot.beans.messages.msgget.PrivateMsg;
 import com.forte.qqrobot.beans.messages.types.MsgGetTypes;
 import com.forte.qqrobot.beans.messages.types.PowerType;
@@ -23,15 +22,10 @@ import org.springframework.stereotype.Service;
 import java.io.File;
 import java.io.IOException;
 import java.io.InputStream;
-import java.nio.charset.StandardCharsets;
-import java.time.LocalDateTime;
-import java.util.ArrayList;
-import java.util.HashMap;
 import java.util.Random;
 
 import static io.koschicken.Constants.*;
 import static io.koschicken.listener.PrincessIntercept.On;
-import static io.koschicken.utils.StringTool.*;
 
 @Service
 public class OtherListener {
@@ -160,45 +154,6 @@ public class OtherListener {
         }
     }
 
-//    @Listen(MsgGetTypes.groupMsg)
-//    @Filter(value = {"#关闭PcrTool"}, keywordMatchType = KeywordMatchType.TRIM_EQUALS)
-//    public void shut(GroupMsg msg, MsgSender sender) {
-//        try {
-//            PowerType powerType = sender.GETTER.getGroupMemberInfo(msg.getGroupCode(), msg.getQQCode()).getPowerType();
-//            if (powerType.isAdmin() || powerType.isOwner() || pricnessConfig.getMasterQQ().equals(msg.getQQCode())) {
-//                On.put(msg.getGroupCode(), On.get(msg.getGroupCode()).setOn(false));
-//                sender.SENDER.sendGroupMsg(msg.getGroupCode(), "已关闭PcrTool");
-//                setjson();
-//            }
-//        } catch (NullPointerException e) {
-//            //没这个群的自动都是同意
-//            GroupPower groupPower = new GroupPower();
-//            groupPower.setOn(false);
-//            On.put(msg.getGroupCode(), groupPower);
-//            sender.SENDER.sendGroupMsg(msg.getGroupCode(), "已关闭PcrTool");
-//            setjson();
-//        }
-//    }
-//
-//    @Listen(MsgGetTypes.groupMsg)
-//    @Filter(value = {"#开启PcrTool"}, keywordMatchType = KeywordMatchType.TRIM_EQUALS)
-//    public void open(GroupMsg msg, MsgSender sender) {
-//        try {
-//            PowerType powerType = sender.GETTER.getGroupMemberInfo(msg.getGroupCode(), msg.getQQCode()).getPowerType();
-//            if (powerType.isAdmin() || powerType.isOwner() || pricnessConfig.getMasterQQ().equals(msg.getQQCode())) {
-//                On.put(msg.getGroupCode(), On.get(msg.getGroupCode()).setOn(true));
-//                sender.SENDER.sendGroupMsg(msg.getGroupCode(), "已开启PcrTool");
-//                setjson();
-//            }
-//        } catch (NullPointerException e) {
-//            //没这个群的自动都是同意
-//            GroupPower groupPower = new GroupPower();
-//            On.put(msg.getGroupCode(), groupPower);
-//            sender.SENDER.sendGroupMsg(msg.getGroupCode(), "已开启PcrTool");
-//            setjson();
-//        }
-//    }
-
     @Listen(MsgGetTypes.groupMsg)
     @Filter(value = {"#关闭提醒买药小助手"}, keywordMatchType = KeywordMatchType.TRIM_EQUALS)
     public void shutBuy(GroupMsg msg, MsgSender sender) {
@@ -323,7 +278,7 @@ public class OtherListener {
 
     @Listen(MsgGetTypes.groupMsg)
     @Filter(value = {"#头像.*"})
-    public void touxiang(GroupMsg msg, MsgSender sender) {
+    public void avatar(GroupMsg msg, MsgSender sender) {
         String[] split = msg.getMsg().split(" +");
         String QQ = "";
         if (split.length > 1) {

@@ -121,8 +121,12 @@ public class HorseRunListener {
             score = RandomUtils.nextInt(25000, 50001);
         } else if (rank >= 95) {
             score = RandomUtils.nextInt(10000, 25001);
+        } else if (rank >= 50) {
+            score = RandomUtils.nextInt(5000, 10001);
+        } else if (rank >= 15) {
+            score = RandomUtils.nextInt(2500, 5001);
         } else {
-            score = RandomUtils.nextInt(1, 10001);
+            score = rank;
         }
         if (On.get(msg.getGroupCode()).isHorseSwitch()) {
             Scores scores = scoresService.getById(msg.getCodeNumber());
@@ -225,7 +229,7 @@ public class HorseRunListener {
     @Listen(value = {MsgGetTypes.groupMsg, MsgGetTypes.privateMsg})
     @Filter(value = {"我有多少钱鸭老婆", "老婆我有多少钱", "我有多少钱", "我有多少钱老婆", "我还有多少钱", "余额"},
             keywordMatchType = KeywordMatchType.TRIM_EQUALS)
-    public void mycoin(MsgGet msg, MsgSender sender) {
+    public void myCoin(MsgGet msg, MsgSender sender) {
         Scores scores;
         GroupMsg groupMsg;
         PrivateMsg privateMsg;
@@ -273,7 +277,7 @@ public class HorseRunListener {
 
     @Listen(MsgGetTypes.groupMsg)
     @Filter(value = {"#开启赛马"}, keywordMatchType = KeywordMatchType.TRIM_EQUALS)
-    public void openhorse(GroupMsg msg, MsgSender sender) {
+    public void horseBegin(GroupMsg msg, MsgSender sender) {
         try {
             PowerType powerType = sender.GETTER.getGroupMemberInfo(msg.getGroupCode(), msg.getQQ()).getPowerType();
             if (powerType.isOwner() || powerType.isAdmin()) {
@@ -292,7 +296,7 @@ public class HorseRunListener {
 
     @Listen(MsgGetTypes.groupMsg)
     @Filter(value = {"#关闭赛马"}, keywordMatchType = KeywordMatchType.TRIM_EQUALS)
-    public void shuthorse(GroupMsg msg, MsgSender sender) {
+    public void horseDisable(GroupMsg msg, MsgSender sender) {
         try {
             PowerType powerType = sender.GETTER.getGroupMemberInfo(msg.getGroupCode(), msg.getQQ()).getPowerType();
             if (powerType.isOwner() || powerType.isAdmin()) {
@@ -310,17 +314,7 @@ public class HorseRunListener {
     }
 
     /**
-     * 计算这个干扰能不能奏效
-     */
-    public boolean isCan() {
-        Random random = new Random();
-        return random.nextInt(33) > 22;
-    }
-
-    /**
      * 根据传入的马赛场实况类，制作出马赛场图
-     *
-     * @param horse
      */
     public String drawHorse(@NotNull Horse horse) {
         StringBuilder stringBuilder = new StringBuilder();
@@ -406,8 +400,8 @@ public class HorseRunListener {
             Map<Long, int[]> map = maList.get(groupQQ); // int[0]->马的编号 int[1]->钱
             List<Long> winner = new ArrayList<>();
             for (Long qq : map.keySet()) {
-                int[] ints = map.get(qq);
-                if (Arrays.binarySearch(ints, winnerHorse) >= 0) {
+                int[] intArray = map.get(qq);
+                if (Arrays.binarySearch(intArray, winnerHorse) >= 0) {
                     winner.add(qq);
                 }
             }

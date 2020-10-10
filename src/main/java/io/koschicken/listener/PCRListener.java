@@ -193,8 +193,6 @@ public class PCRListener {
 
     /**
      * 普通池的概率
-     *
-     * @param num
      */
     @Ignore
     private Gacha dp_Gashapon(int num) {
@@ -247,8 +245,6 @@ public class PCRListener {
 
     /**
      * up池的概率
-     *
-     * @param num
      */
     private Gacha dp_UpGashapon(int num) {
         Random random = new Random();
@@ -416,8 +412,6 @@ public class PCRListener {
 
     /**
      * 获取冷却时间是不是到了
-     *
-     * @param QQ
      */
     private boolean isCool(String QQ) {
         if (coolDown == null) {

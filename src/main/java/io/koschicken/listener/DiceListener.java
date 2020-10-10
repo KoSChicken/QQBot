@@ -10,8 +10,6 @@ import com.forte.qqrobot.sender.MsgSender;
 import io.koschicken.database.bean.Scores;
 import io.koschicken.database.service.ScoresService;
 import org.apache.commons.lang3.RandomUtils;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
@@ -28,7 +26,6 @@ public class DiceListener {
     private static final HashMap<String, Map<Long, List<String>>> diceMap = new HashMap<>();
     private static final List<String> typeList;
     private static final HashMap<String, Boolean> progressMap = new HashMap<>(); // 骰子游戏状态
-    private static final Logger LOGGER = LoggerFactory.getLogger(DiceListener.class);
     private static final int RATE_N = 2;
     private static final int RATE_B = 34;
 
@@ -153,7 +150,7 @@ public class DiceListener {
             }
         }
         String result = result(allSame, sum);
-        sender.SENDER.sendGroupMsg(msg.getGroupCode(), result.equals("豹子") ? "豹了" : "没豹");
+        sender.SENDER.sendGroupMsg(msg.getGroupCode(), "豹子".equals(result) ? "豹了" : "没豹");
     }
 
     public void allClear(String groupQQ, String result) {
@@ -165,7 +162,7 @@ public class DiceListener {
             if (group.get(entry).get(0).equals(result)) {
                 Scores byId = ScoresServiceImpl.getById(entry);
                 double rate;
-                if (result.equals("豹子")) {
+                if ("豹子".equals(result)) {
                     rate = RATE_B;
                 } else {
                     rate = RATE_N;

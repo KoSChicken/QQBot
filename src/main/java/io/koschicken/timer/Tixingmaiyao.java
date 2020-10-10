@@ -7,10 +7,8 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.scheduling.annotation.EnableScheduling;
 import org.springframework.scheduling.annotation.Scheduled;
 import org.springframework.stereotype.Component;
-import org.springframework.util.ResourceUtils;
 
 import java.io.File;
-import java.io.FileNotFoundException;
 import java.util.Set;
 
 import static io.koschicken.Constants.princessConfig;

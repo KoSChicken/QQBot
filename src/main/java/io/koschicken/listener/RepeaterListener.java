@@ -17,8 +17,6 @@ public class RepeaterListener {
 
     Map<String, Deque<String>> stackMap = new HashMap<>(); // 用于存储不同群的消息栈
 
-    // private static final Deque<String> stack = new ArrayDeque<>(); // 用于存放复读消息的栈
-
     @Listen(MsgGetTypes.groupMsg)
     @Filter(value = ".*")
     public void startRepeat(GroupMsg msg, MsgSender sender) {
