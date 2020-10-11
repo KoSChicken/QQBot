@@ -13,6 +13,7 @@ import com.forte.qqrobot.utils.CQCodeUtil;
 import io.koschicken.bean.GroupPower;
 import io.koschicken.database.service.ScoresService;
 import org.apache.commons.io.FileUtils;
+import org.apache.commons.lang3.RandomUtils;
 import org.apache.commons.lang3.StringUtils;
 import org.apache.http.client.fluent.Request;
 import org.slf4j.Logger;
@@ -24,6 +25,8 @@ import java.io.File;
 import java.io.IOException;
 import java.io.InputStream;
 import java.util.Random;
+import java.util.regex.Matcher;
+import java.util.regex.Pattern;
 
 import static io.koschicken.Constants.*;
 import static io.koschicken.listener.PrincessIntercept.On;
@@ -320,6 +323,27 @@ public class OtherListener {
             LOGGER.info("文件删除成功了吗？{}", delete);
         } catch (Exception e) {
             e.printStackTrace();
+        }
+    }
+
+    @Listen(MsgGetTypes.groupMsg)
+    @Filter(value = {"#roll(.*)[dD-到](.*)"})
+    public void roll(GroupMsg msg, MsgSender sender) {
+        try {
+            String regex = "#roll(.*)[dD-到](.*)";
+            String message = msg.getMsg();
+            Pattern p = Pattern.compile(regex);
+            Matcher m = p.matcher(message);
+            int low = 0, high = 0;
+            while (m.find()) {
+                low = Integer.parseInt(m.group(1).trim());
+                high = Integer.parseInt(m.group(2).trim());
+            }
+            int i = RandomUtils.nextInt(low, high + 1);
+            sender.SENDER.sendGroupMsg(msg.getGroupCode(), "[CQ:at,qq=" + msg.getQQ() + "]roll出了" + i + "点（" +
+                    low + "到" + high + "）");
+        } catch (NumberFormatException e) {
+            sender.SENDER.sendGroupMsg(msg.getGroupCode(), "roll点上下限必须是数字才行哦");
         }
     }
 }
