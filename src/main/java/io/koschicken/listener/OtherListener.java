@@ -327,10 +327,10 @@ public class OtherListener {
     }
 
     @Listen(MsgGetTypes.groupMsg)
-    @Filter(value = {"#roll(.*)[dD-到](.*)"})
+    @Filter(value = {"#roll(.*)[-dD到](.*)"})
     public void roll(GroupMsg msg, MsgSender sender) {
         try {
-            String regex = "#roll(.*)[dD-到](.*)";
+            String regex = "#roll(.*)[-dD到](.*)";
             String message = msg.getMsg();
             Pattern p = Pattern.compile(regex);
             Matcher m = p.matcher(message);
