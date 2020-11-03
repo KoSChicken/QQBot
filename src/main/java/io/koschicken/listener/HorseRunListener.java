@@ -113,7 +113,7 @@ public class HorseRunListener {
     }
 
     @Listen(MsgGetTypes.groupMsg)
-    @Filter(value = {"#给xcw上供", "上供", "#上供", "签到", "#签到"}, keywordMatchType = KeywordMatchType.TRIM_EQUALS)
+    @Filter(value = {"#给xcw上供", "上供", "#上供", "签到", "#签到", "簽到", "#簽到"}, keywordMatchType = KeywordMatchType.TRIM_EQUALS)
     public void sign(GroupMsg msg, MsgSender sender) {
         int rank = RandomUtils.nextInt(1, 101);
         int score;

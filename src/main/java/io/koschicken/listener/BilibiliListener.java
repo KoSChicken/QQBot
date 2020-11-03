@@ -18,13 +18,17 @@ import org.springframework.stereotype.Service;
 
 import java.io.IOException;
 import java.util.HashMap;
+import java.util.Map;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
 @Service
 public class BilibiliListener {
 
-    public static HashMap<String, BilibiliLive> liveHashMap = new HashMap<>();
+    public static final Map<String, BilibiliLive> liveHashMap = new HashMap<>();
+    private static final String CQ_TYPE = "image";
+    private static final String CQ_PARAMS = "file=";
+
     @Autowired
     ScoresService scoresServiceImpl;
 
@@ -39,8 +43,9 @@ public class BilibiliListener {
             message += "\n直播间：" + "https://live.bilibili.com/" + bilibiliUser.getRoomId();
         }
         message += "\n签名:" + bilibiliUser.getSign();
+
         String image = KQCodeUtils.getInstance()
-                .toCq("image", "file=" + bilibiliUser.getFace().getAbsolutePath());
+                .toCq(CQ_TYPE, CQ_PARAMS + bilibiliUser.getFace().getAbsolutePath());
         message += "\n" + image;
         sender.SENDER.sendGroupMsg(msg.getGroupCode(), message);
     }
@@ -50,7 +55,8 @@ public class BilibiliListener {
     @Filter(value = "#封面", keywordMatchType = KeywordMatchType.TRIM_STARTS_WITH)
     public void videoFace(GroupMsg msg, MsgSender sender) {
         String videoCode = msg.getMsg().substring(3).trim();
-        String av = "", bv = "";
+        String av = "";
+        String bv = "";
         try {
             BilibiliVideo bilibiliVideo = null;
             if (videoCode.startsWith("videoCode") || videoCode.startsWith("AV")) {
@@ -64,7 +70,7 @@ public class BilibiliListener {
             }
             if (bilibiliVideo != null) {
                 String image = KQCodeUtils.getInstance()
-                        .toCq("image", "file=" + bilibiliVideo.getPic().getAbsolutePath());
+                        .toCq(CQ_TYPE, CQ_PARAMS + bilibiliVideo.getPic().getAbsolutePath());
                 sender.SENDER.sendGroupMsg(msg.getGroupCode(),
                         "av号：" + av + "\nbv号：" + bv + "\n视频标题:" + bilibiliVideo.getTitle() + "\n" + image);
             }
@@ -104,7 +110,7 @@ public class BilibiliListener {
         } else {
             sender.SENDER.sendGroupMsg(msg.getGroupCode(), "开播啦！\n标题:" + bilibiliLive.getTitle() +
                     "\n链接:" + bilibiliLive.getUrl() + KQCodeUtils.getInstance()
-                    .toCq("image", "file=" + bilibiliLive.getCover().getAbsolutePath()));
+                    .toCq(CQ_TYPE, CQ_PARAMS + bilibiliLive.getCover().getAbsolutePath()));
         }
     }
 
@@ -197,6 +203,7 @@ public class BilibiliListener {
                             Thread.sleep(1000);
                         } catch (InterruptedException e1) {
                             e1.printStackTrace();
+                            Thread.currentThread().interrupt();
                         }
                     }
                 } while (flag);

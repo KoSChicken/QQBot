@@ -9,32 +9,33 @@ import java.util.Map;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
-public class ApiConnect {
+public final class ApiConnect {
+
+    private ApiConnect() {
+    }
 
     /**
      * 向url的api发送访问请求，参数为第二个map变量，为get请求
      *
-     * @param requestUrl
-     * @param params
+     * @param requestUrl 请求地址
+     * @param params     请求参数
      */
-    private static String httpRequest(String requestUrl, Map params) {
+    @SuppressWarnings("unused")
+    private static String httpRequest(String requestUrl, Map<String, Object> params) {
         //buffer用于接受返回的字符
         StringBuilder buffer = new StringBuilder();
         try {
-            //建立URL，把请求地址给补全，其中urlencode（）方法用于把params里的参数给取出来
-            //URL url = new URL(requestUrl+"?"+urlencode(params));
+            //建立URL，把请求地址给补全，其中urlEncode（）方法用于把params里的参数给取出来
             URL url = new URL(requestUrl + urlEncode(params));
             //打开http连接
             HttpURLConnection httpUrlConn = (HttpURLConnection) url.openConnection();
             httpUrlConn.setDoInput(true);
             httpUrlConn.setRequestMethod("GET");
             httpUrlConn.connect();
-
             //获得输入
             InputStream inputStream = httpUrlConn.getInputStream();
             InputStreamReader inputStreamReader = new InputStreamReader(inputStream, StandardCharsets.UTF_8);
             BufferedReader bufferedReader = new BufferedReader(inputStreamReader);
-
             //将bufferReader的值给放到buffer里
             String str;
             while ((str = bufferedReader.readLine()) != null) {
@@ -56,26 +57,23 @@ public class ApiConnect {
     /**
      * 上个函数的无参版本
      *
-     * @param requestUrl
+     * @param requestUrl 请求地址
      */
     public static String httpRequest(String requestUrl) {
         //buffer用于接受返回的字符
         StringBuilder buffer = new StringBuilder();
         try {
-            //建立URL，把请求地址给补全，其中urlencode（）方法用于把params里的参数给取出来
-            //URL url = new URL(requestUrl+"?"+urlencode(params));
+            //建立URL，把请求地址给补全，其中urlEncode（）方法用于把params里的参数给取出来
             URL url = new URL(requestUrl);
             //打开http连接
             HttpURLConnection httpUrlConn = (HttpURLConnection) url.openConnection();
             httpUrlConn.setDoInput(true);
             httpUrlConn.setRequestMethod("GET");
             httpUrlConn.connect();
-
             //获得输入
             InputStream inputStream = httpUrlConn.getInputStream();
             InputStreamReader inputStreamReader = new InputStreamReader(inputStream, StandardCharsets.UTF_8);
             BufferedReader bufferedReader = new BufferedReader(inputStreamReader);
-
             //将bufferReader的值给放到buffer里
             String str;
             while ((str = bufferedReader.readLine()) != null) {
@@ -118,25 +116,16 @@ public class ApiConnect {
         String read;
         URL url;
         HttpURLConnection urlConnection;
-        BufferedReader in = null;
         try {
             url = new URL(chinaz);
             urlConnection = (HttpURLConnection) url.openConnection();
-            in = new BufferedReader(new InputStreamReader(urlConnection.getInputStream(), StandardCharsets.UTF_8));
-            while ((read = in.readLine()) != null) {
-                inputLine.append(read).append("\r\n");
+            try (BufferedReader in = new BufferedReader(new InputStreamReader(urlConnection.getInputStream(), StandardCharsets.UTF_8))) {
+                while ((read = in.readLine()) != null) {
+                    inputLine.append(read).append("\r\n");
+                }
             }
         } catch (IOException e) {
             e.printStackTrace();
-        } finally {
-            if (in != null) {
-                try {
-                    in.close();
-                } catch (IOException e) {
-                    // TODO Auto-generated catch block
-                    e.printStackTrace();
-                }
-            }
         }
 
         Pattern p = Pattern.compile("<dd class=\"fz24\">(.*?)</dd>");
