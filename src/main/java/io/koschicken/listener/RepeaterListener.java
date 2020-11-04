@@ -35,7 +35,6 @@ public class RepeaterListener {
         } else {
             if (currentMsg.equals(stack.peek())) { // 如果当前消息内容和栈顶内容相同则入栈
                 stack.push(currentMsg);
-                System.out.println(stack.size());
             } else {
                 stack.clear(); // 如果当前消息和栈顶内容不同（复读中断），则清空栈
             }

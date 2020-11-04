@@ -16,23 +16,6 @@ public class Pixiv {
     private Integer quota;
     private boolean r18;
 
-    public Pixiv() {
-    }
-
-    public Pixiv(String code, String msg, String title, String artwork, String author, String artist,
-                 String[] tags, String type, String fileName, String original) {
-        this.code = code;
-        this.msg = msg;
-        this.title = title;
-        this.artwork = artwork;
-        this.author = author;
-        this.artist = artist;
-        this.tags = tags;
-        this.type = type;
-        this.fileName = fileName;
-        this.original = original;
-    }
-
     public String getCode() {
         return code;
     }
@@ -142,6 +125,8 @@ public class Pixiv {
                 ", type='" + type + '\'' +
                 ", fileName='" + fileName + '\'' +
                 ", original='" + original + '\'' +
+                ", quota=" + quota +
+                ", r18=" + r18 +
                 '}';
     }
 }

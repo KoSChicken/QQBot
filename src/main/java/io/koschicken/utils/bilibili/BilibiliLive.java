@@ -1,5 +1,6 @@
 package io.koschicken.utils.bilibili;
 
+import com.alibaba.fastjson.JSON;
 import com.alibaba.fastjson.JSONObject;
 import org.apache.commons.io.FileUtils;
 import org.apache.http.client.fluent.Request;
@@ -10,7 +11,7 @@ import java.net.URL;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
-import static io.koschicken.Constants.princessConfig;
+import static io.koschicken.Constants.PRINCESS_CONFIG;
 import static org.springframework.util.ResourceUtils.isUrl;
 
 public class BilibiliLive {
@@ -27,7 +28,7 @@ public class BilibiliLive {
 
     public BilibiliLive(String mid) throws IOException {
         this.mid = mid;
-        frash();
+        fresh();
     }
 
     /**
@@ -57,13 +58,13 @@ public class BilibiliLive {
     public static String get(String getUrl) throws IOException {
         return Request.Get(getUrl)
                 .setHeader("User-Agent", "Mozilla/5.0 (Windows NT 10.0; Win64; x64; rv:80.0) Gecko/20100101 Firefox/80.0")
-                .setHeader("Cookie", princessConfig.getBilibiliCookie())
+                .setHeader("Cookie", PRINCESS_CONFIG.getBilibiliCookie())
                 .execute().returnContent().asString();
     }
 
-    public void frash() throws IOException {
+    public void fresh() throws IOException {
         String live = getLive(mid);
-        JSONObject jsonObject = JSONObject.parseObject(live);
+        JSONObject jsonObject = JSON.parseObject(live);
         JSONObject data = jsonObject.getJSONObject("data");
         if (data != null) {
             roomStatus = data.getInteger("roomStatus");
@@ -77,15 +78,16 @@ public class BilibiliLive {
             online = data.getInteger("online");
             roomId = data.getInteger("roomid");
 
-            boolean isUrl = isUrl(data.getString("cover"));
+            String coverFromJson = data.getString("cover");
+            boolean isUrl = isUrl(coverFromJson);
             if (isUrl) {
-                String fileName = getImageName(data.getString("cover"));
-                if (cover == null || cover.getName().equals(fileName)) {
-                    cover = new File(TEMP + fileName);
-                    FileUtils.forceMkdir(cover.getParentFile());
-                    FileUtils.deleteQuietly(cover);
-                    FileUtils.touch(cover);
-                    URL imageUrl = new URL(data.getString("cover"));
+                String fileName = getImageName(coverFromJson);
+                if (this.cover == null || this.cover.getName().equals(fileName)) {
+                    this.cover = new File(TEMP + fileName);
+                    FileUtils.forceMkdir(this.cover.getParentFile());
+                    FileUtils.deleteQuietly(this.cover);
+                    FileUtils.touch(this.cover);
+                    URL imageUrl = new URL(coverFromJson);
                     FileUtils.copyURLToFile(imageUrl, this.cover);
                 }
             }
@@ -137,9 +139,5 @@ public class BilibiliLive {
 
     public int getRoomId() {
         return roomId;
-    }
-
-    public static void main(String[] args) throws IOException {
-        BilibiliLive bilibiliLive = new BilibiliLive("");
     }
 }

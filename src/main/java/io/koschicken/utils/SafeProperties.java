@@ -10,18 +10,18 @@ import java.util.Properties;
 public class SafeProperties extends Properties {
     private static final long serialVersionUID = 5011694856722313621L;
 
-    private static final String keyValueSeparators = "=: \t\r\n\f";
+    private static final String KEY_VALUE_SEPARATORS = "=: \t\r\n\f";
 
-    private static final String strictKeyValueSeparators = "=:";
+    private static final String STRICT_KEY_VALUE_SEPARATORS = "=:";
 
-    private static final String whiteSpaceChars = " \t\r\n\f";
+    private static final String WHITE_SPACE_CHARS = " \t\r\n\f";
 
-    private static final Charset file_code = StandardCharsets.UTF_8;
+    private static final Charset FILE_CODE = StandardCharsets.UTF_8;
     /**
      * A table of hex digits
      */
-    private static final char[] hexDigit = {'0', '1', '2', '3', '4', '5', '6', '7', '8', '9', 'A', 'B', 'C', 'D', 'E',
-            'F'};
+    private static final char[] hexDigit = {'0', '1', '2', '3', '4', '5', '6', '7', '8', '9', 'A', 'B', 'C', 'D', 'E', 'F'};
+
     private final PropertiesContext context = new PropertiesContext();
 
     private static void writeln(BufferedWriter bw, String s) throws IOException {
@@ -34,6 +34,7 @@ public class SafeProperties extends Properties {
      *
      * @param nibble the nibble to convert.
      */
+    @SuppressWarnings("unused")
     private static char toHex(int nibble) {
         return hexDigit[(nibble & 0xF)];
     }
@@ -42,11 +43,9 @@ public class SafeProperties extends Properties {
         return context;
     }
 
+    @Override
     public synchronized void load(InputStream inStream) throws IOException {
-
-        BufferedReader in;
-
-        in = new BufferedReader(new InputStreamReader(inStream, file_code));
+        BufferedReader in = new BufferedReader(new InputStreamReader(inStream, FILE_CODE));
         while (true) {
             // Get next line
             String line = in.readLine();
@@ -55,34 +54,36 @@ public class SafeProperties extends Properties {
             if (line == null) {
                 return;
             }
-
             if (line.length() > 0) {
                 // Find start of key
                 int len = line.length();
                 int keyStart;
-                for (keyStart = 0; keyStart < len; keyStart++)
-                    if (whiteSpaceChars.indexOf(line.charAt(keyStart)) == -1)
+                for (keyStart = 0; keyStart < len; keyStart++) {
+                    if (WHITE_SPACE_CHARS.indexOf(line.charAt(keyStart)) == -1) {
                         break;
-
+                    }
+                }
                 // Blank lines are ignored
-                if (keyStart == len)
+                if (keyStart == len) {
                     continue;
-
+                }
                 // Continue lines that end in slashes if they are not comments
                 char firstChar = line.charAt(keyStart);
-
                 if ((firstChar != '#') && (firstChar != '!')) {
                     while (continueLine(line)) {
                         String nextLine = in.readLine();
                         intactLine.append("\n").append(nextLine);
-                        if (nextLine == null)
+                        if (nextLine == null) {
                             nextLine = "";
+                        }
                         String loppedLine = line.substring(0, len - 1);
                         // Advance beyond whitespace on new line
                         int startIndex;
-                        for (startIndex = 0; startIndex < nextLine.length(); startIndex++)
-                            if (whiteSpaceChars.indexOf(nextLine.charAt(startIndex)) == -1)
+                        for (startIndex = 0; startIndex < nextLine.length(); startIndex++) {
+                            if (WHITE_SPACE_CHARS.indexOf(nextLine.charAt(startIndex)) == -1) {
                                 break;
+                            }
+                        }
                         nextLine = nextLine.substring(startIndex);
                         line = loppedLine + nextLine;
                         len = line.length();
@@ -92,32 +93,32 @@ public class SafeProperties extends Properties {
                     int separatorIndex;
                     for (separatorIndex = keyStart; separatorIndex < len; separatorIndex++) {
                         char currentChar = line.charAt(separatorIndex);
-                        if (currentChar == '\\')
+                        if (currentChar == '\\') {
                             separatorIndex++;
-                        else if (keyValueSeparators.indexOf(currentChar) != -1)
+                        } else if (KEY_VALUE_SEPARATORS.indexOf(currentChar) != -1) {
                             break;
+                        }
                     }
-
                     // Skip over whitespace after key if any
                     int valueIndex;
-                    for (valueIndex = separatorIndex; valueIndex < len; valueIndex++)
-                        if (whiteSpaceChars.indexOf(line.charAt(valueIndex)) == -1)
+                    for (valueIndex = separatorIndex; valueIndex < len; valueIndex++) {
+                        if (WHITE_SPACE_CHARS.indexOf(line.charAt(valueIndex)) == -1) {
                             break;
-
+                        }
+                    }
                     // Skip over one non whitespace key value separators if any
-                    if (valueIndex < len)
-                        if (strictKeyValueSeparators.indexOf(line.charAt(valueIndex)) != -1)
-                            valueIndex++;
-
+                    if (valueIndex < len && STRICT_KEY_VALUE_SEPARATORS.indexOf(line.charAt(valueIndex)) != -1) {
+                        valueIndex++;
+                    }
                     // Skip over white space after other separators if any
                     while (valueIndex < len) {
-                        if (whiteSpaceChars.indexOf(line.charAt(valueIndex)) == -1)
+                        if (WHITE_SPACE_CHARS.indexOf(line.charAt(valueIndex)) == -1) {
                             break;
+                        }
                         valueIndex++;
                     }
                     String key = line.substring(keyStart, separatorIndex);
                     String value = (separatorIndex < len) ? line.substring(valueIndex, len) : "";
-
                     // Convert then store key and value
                     if (value.charAt(0) == '[' && value.charAt(value.length() - 1) == ']') {
                         String[] strings;
@@ -141,9 +142,10 @@ public class SafeProperties extends Properties {
         }
     }
 
+    @Override
     public synchronized void store(OutputStream out, String header) throws IOException {
         BufferedWriter awriter;
-        awriter = new BufferedWriter(new OutputStreamWriter(out, file_code));
+        awriter = new BufferedWriter(new OutputStreamWriter(out, FILE_CODE));
         if (header != null)
             writeln(awriter, "#" + header);
         List<Object> entries = context.getCommentOrEntries();
@@ -155,6 +157,7 @@ public class SafeProperties extends Properties {
         awriter.flush();
     }
 
+    @Override
     public synchronized Object put(Object key, Object value) {
         if (value.getClass().isArray()) {
             StringBuilder stringBuilder = new StringBuilder();
@@ -172,9 +175,20 @@ public class SafeProperties extends Properties {
         return super.put(key, value);
     }
 
+    @Override
     public synchronized Object remove(Object key) {
         context.remove(key.toString());
         return super.remove(key);
+    }
+
+    @Override
+    public synchronized boolean equals(Object o) {
+        return super.equals(o);
+    }
+
+    @Override
+    public synchronized int hashCode() {
+        return super.hashCode();
     }
 
     private boolean continueLine(String line) {
@@ -206,7 +220,10 @@ public class SafeProperties extends Properties {
         context.addCommentLine("");
     }
 
-    static class PropertiesContext {
+    static class PropertiesContext implements Serializable {
+
+        private static final long serialVersionUID = 2152372128379361196L;
+
         private final List<Object> commentOrEntries = new ArrayList<>();
 
         public List<Object> getCommentOrEntries() {
@@ -237,11 +254,9 @@ public class SafeProperties extends Properties {
         public int remove(String key) {
             for (int index = 0; index < commentOrEntries.size(); index++) {
                 Object obj = commentOrEntries.get(index);
-                if (obj instanceof PropertyEntry) {
-                    if (key.equals(((PropertyEntry) obj).getKey())) {
-                        commentOrEntries.remove(obj);
-                        return index;
-                    }
+                if (obj instanceof PropertyEntry && key.equals(((PropertyEntry) obj).getKey())) {
+                    commentOrEntries.remove(obj);
+                    return index;
                 }
             }
             return commentOrEntries.size();
@@ -300,7 +315,7 @@ public class SafeProperties extends Properties {
                 if (key != null && value != null) {
                     return key + "=" + value;
                 }
-                return null;
+                return "";
             }
         }
     }

@@ -18,7 +18,7 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
-import static io.koschicken.Constants.princessConfig;
+import static io.koschicken.Constants.PRINCESS_CONFIG;
 
 public class SetuUtils {
     private static final String YUBAN1073API = "http://api.yuban10703.xyz:2333/setu_v3";
@@ -36,6 +36,10 @@ public class SetuUtils {
         codeMap.put(429, "达到调用额度限制");
     }
 
+    private SetuUtils() {
+
+    }
+
     public static List<Pixiv> getSetu(String tag, int num, Boolean r18) throws IOException {
         List<Pixiv> pixivList = fetchFromLolicon(num, tag, r18);
         if ("0".equals(pixivList.get(0).getCode())) {
@@ -51,7 +55,7 @@ public class SetuUtils {
         List<Pixiv> pics = new ArrayList<>();
         String api = YUBAN1073API + "?num=" + num;
         int type;
-        if (r18) {
+        if (Boolean.TRUE.equals(r18)) {
             type = 2;
         } else {
             type = 3;
@@ -83,12 +87,12 @@ public class SetuUtils {
 
     private static List<Pixiv> fetchFromLolicon(int num, String tag, Boolean r18) throws IOException {
         List<Pixiv> pics = new ArrayList<>();
-        String loliconApi = LOLICONAPI + "?apikey=" + princessConfig.getLoliconApiKey() + "&r18=2&size1200=true&num=" + num;
+        String loliconApi = LOLICONAPI + "?apikey=" + PRINCESS_CONFIG.getLoliconApiKey() + "&r18=2&size1200=true&num=" + num;
         if (!StringUtils.isEmpty(tag)) {
             loliconApi += "&keyword=" + tag;
         }
         if (r18 != null) {
-            loliconApi += "&r18=" + (r18 ? 1 : 2);
+            loliconApi += "&r18=" + (Boolean.TRUE.equals(r18) ? 1 : 2);
         }
         LOGGER.info("这次请求的Lolicon地址为： {}", loliconApi);
         ResponseHandler<String> myHandler = response -> EntityUtils.toString(response.getEntity(), Consts.UTF_8);
@@ -132,7 +136,7 @@ public class SetuUtils {
         pixiv.setAuthor(data.getString("author"));
         pixiv.setArtist(data.getString("uid"));
         pixiv.setTags(data.getString("tags").split(","));
-        pixiv.setType(data.getBoolean("r18") ? "r18" : "normal");
+        pixiv.setType(Boolean.TRUE.equals(data.getBoolean("r18")) ? "r18" : "normal");
         pixiv.setFileName(data.getString("url"));
         pixiv.setOriginal(data.getString("url"));
         pixiv.setR18(Boolean.parseBoolean(data.getString("r18")));

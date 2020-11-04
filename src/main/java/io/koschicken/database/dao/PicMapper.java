@@ -2,11 +2,9 @@ package io.koschicken.database.dao;
 
 import com.baomidou.mybatisplus.core.mapper.BaseMapper;
 import io.koschicken.database.bean.Pic;
-import io.koschicken.database.bean.Scores;
 import org.apache.ibatis.annotations.Mapper;
 import org.apache.ibatis.annotations.Param;
 import org.apache.ibatis.annotations.Select;
-import org.apache.ibatis.annotations.Update;
 import org.springframework.stereotype.Repository;
 
 import java.util.List;

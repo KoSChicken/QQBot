@@ -6,14 +6,15 @@ import com.forte.qqrobot.listener.MsgGetContext;
 import com.forte.qqrobot.listener.MsgIntercept;
 import io.koschicken.bean.GroupPower;
 
+import java.util.Map;
 import java.util.concurrent.ConcurrentHashMap;
 
-import static io.koschicken.Constants.princessConfig;
+import static io.koschicken.Constants.PRINCESS_CONFIG;
 import static io.koschicken.Constants.setJson;
 
 @Beans
 public class PrincessIntercept implements MsgIntercept {
-    public static ConcurrentHashMap<String, GroupPower> On = new ConcurrentHashMap<>(10);//1:总开关2:抽卡开关3：提醒买药开关
+    public static Map<String, GroupPower> On = new ConcurrentHashMap<>(10);//1:总开关2:抽卡开关3：提醒买药开关
     //默认总开关开启
 
     @Override
@@ -31,13 +32,13 @@ public class PrincessIntercept implements MsgIntercept {
             } catch (NullPointerException e) {
                 //没这个群的信息
                 GroupPower groupPower = new GroupPower();
-                groupPower.setGlobalSwitch(princessConfig.isGlobalSwitch());
-                groupPower.setMaiyaoSwitch(princessConfig.isMaiyaoSwitch());
-                groupPower.setGachaSwitch(princessConfig.isGachaSwitch());
-                groupPower.setHorseSwitch(princessConfig.isHorseSwitch());
+                groupPower.setGlobalSwitch(PRINCESS_CONFIG.isGlobalSwitch());
+                groupPower.setMaiyaoSwitch(PRINCESS_CONFIG.isMaiyaoSwitch());
+                groupPower.setGachaSwitch(PRINCESS_CONFIG.isGachaSwitch());
+                groupPower.setHorseSwitch(PRINCESS_CONFIG.isHorseSwitch());
                 On.put(((GroupMsg) context.getMsgGet()).getGroupCode(), groupPower);
                 setJson();
-                return princessConfig.isGlobalSwitch();
+                return PRINCESS_CONFIG.isGlobalSwitch();
             }
         }
         return true;

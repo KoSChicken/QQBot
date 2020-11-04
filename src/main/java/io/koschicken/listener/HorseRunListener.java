@@ -22,7 +22,6 @@ import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
-import javax.validation.constraints.NotNull;
 import java.util.*;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
@@ -33,7 +32,7 @@ import static io.koschicken.listener.PrincessIntercept.On;
 @Service
 public class HorseRunListener {
 
-    public static final int signScore = 5000;
+    public static final int SIGN_SCORE = 5000;
     //赛马  群号->映射群员->映射押注对象号码 押注金额
     private static final HashMap<String, Map<Long, int[]>> maList = new HashMap<>();
     private static final HashMap<String, Integer> progressList = new HashMap<>(); // 赛马进度
@@ -74,7 +73,7 @@ public class HorseRunListener {
     @Listen(MsgGetTypes.groupMsg)
     @Filter(value = "#天降福利")
     public void allRich(GroupMsg msg, MsgSender sender) {
-        if (princessConfig.getMasterQQ().equals(msg.getQQ())) {
+        if (PRINCESS_CONFIG.getMasterQQ().equals(msg.getQQ())) {
             scoresService.allRich();
             sender.SENDER.sendGroupMsg(msg.getGroupCode(), "所有人的钱包都增加了一万块钱");
         }
@@ -83,7 +82,7 @@ public class HorseRunListener {
     @Listen(MsgGetTypes.groupMsg)
     @Filter(value = "#金融危机.*")
     public void financialCrisis(GroupMsg msg, MsgSender sender) {
-        if (princessConfig.getMasterQQ().equals(msg.getQQ())) {
+        if (PRINCESS_CONFIG.getMasterQQ().equals(msg.getQQ())) {
             String target;
             String[] split = msg.getMsg().split(" +");
             if (split.length > 1) {
@@ -93,7 +92,7 @@ public class HorseRunListener {
                 return;
             }
             scoresService.financialCrisis(Long.parseLong(target));
-            sender.SENDER.sendGroupMsg(msg.getGroupCode(), "[CQ:at,qq=" + target + "] 遭遇金融危机，财产减半。");
+            sender.SENDER.sendGroupMsg(msg.getGroupCode(), CQ_AT + target + "] 遭遇金融危机，财产减半。");
         }
     }
 
@@ -131,8 +130,8 @@ public class HorseRunListener {
         if (On.get(msg.getGroupCode()).isHorseSwitch()) {
             Scores scores = scoresService.getById(msg.getCodeNumber());
             if (scores != null) {
-                if (scores.getiSign()) {
-                    sender.SENDER.sendGroupMsg(msg.getGroupCode(), "[CQ:at,qq=" + msg.getQQ() + "] 每天只能签到一次");
+                if (Boolean.TRUE.equals(scores.getiSign())) {
+                    sender.SENDER.sendGroupMsg(msg.getGroupCode(), CQ_AT + msg.getQQ() + "] 每天只能签到一次");
                     return;
                 }
                 scores.setScore(scores.getScore() + score);
@@ -144,15 +143,15 @@ public class HorseRunListener {
                     scores.setGroupCode(msg.getGroupCode());
                 }
                 scoresService.updateById(scores);
-                sender.SENDER.sendGroupMsg(msg.getGroupCode(), "[CQ:at,qq=" + msg.getQQ() + "] 签到成功，币+" + score + "，现在币:" + scores.getScore());
+                sender.SENDER.sendGroupMsg(msg.getGroupCode(), CQ_AT + msg.getQQ() + "] 签到成功，币+" + score + "，现在币:" + scores.getScore());
             } else {
                 scores = new Scores();
                 scores.setQQ(msg.getCodeNumber());
                 scores.setiSign(true);
-                scores.setScore(signScore); // 第一次签到的仍然是5000
+                scores.setScore(SIGN_SCORE); // 第一次签到的仍然是5000
                 scores.setGroupCode(msg.getGroupCode());
                 scoresService.save(scores);
-                sender.SENDER.sendGroupMsg(msg.getGroupCode(), "[CQ:at,qq=" + msg.getQQ() + "] 签到成功，币+" + score);
+                sender.SENDER.sendGroupMsg(msg.getGroupCode(), CQ_AT + msg.getQQ() + "] 签到成功，币+" + score);
             }
         }
     }
@@ -237,23 +236,23 @@ public class HorseRunListener {
             groupMsg = (GroupMsg) msg;
             scores = scoresService.getById(groupMsg.getCodeNumber());
             if (scores != null) {
-                String isSign = scores.getiSign() ? "" : "，还没有签到哦";
+                String isSign = Boolean.TRUE.equals(scores.getiSign()) ? "" : "，还没有签到哦";
                 if (scores.getScore() > 0) {
-                    sender.SENDER.sendGroupMsg(groupMsg.getGroupCode(), "[CQ:at,qq=" + groupMsg.getQQ() + "] 有"
+                    sender.SENDER.sendGroupMsg(groupMsg.getGroupCode(), CQ_AT + groupMsg.getQQ() + "] 有"
                             + scores.getScore() + "块钱" + isSign);
                 } else {
-                    sender.SENDER.sendGroupMsg(groupMsg.getGroupCode(), "[CQ:at,qq=" + groupMsg.getQQ() + "] 你没钱，穷仔" + isSign);
+                    sender.SENDER.sendGroupMsg(groupMsg.getGroupCode(), CQ_AT + groupMsg.getQQ() + "] 你没钱，穷仔" + isSign);
                 }
             } else {
                 sender.SENDER.sendGroupMsg(groupMsg.getGroupCode(),
-                        "[CQ:at,qq=" + groupMsg.getQQCode() + "] 锅里没有一滴油");
+                        CQ_AT + groupMsg.getQQCode() + "] 锅里没有一滴油");
             }
         } else {
             privateMsg = (PrivateMsg) msg;
             scores = scoresService.getById(privateMsg.getCodeNumber());
 
             if (scores != null) {
-                String isSign = scores.getiSign() ? "" : "，还没有签到哦";
+                String isSign = Boolean.TRUE.equals(scores.getiSign()) ? "" : "，还没有签到哦";
                 sender.SENDER.sendPrivateMsg(privateMsg.getQQCode(), "有" + scores.getScore() + "块钱" + isSign);
             } else {
                 sender.SENDER.sendPrivateMsg(privateMsg.getQQCode(), "锅里没有一滴油");
@@ -269,7 +268,6 @@ public class HorseRunListener {
         List<Scores> list = scoresService.rank("%" + msg.getGroupCode() + "%");
         for (int i = 0; i < list.size(); i++) {
             GroupMemberInfo info = sender.GETTER.getGroupMemberInfo(msg.getGroupCode(), String.valueOf(list.get(i).getQQ()));
-            //LOGGER.info(info.getName());
             sb.append(i + 1).append(". ").append(info.getCard()).append(" 余额：").append(list.get(i).getScore()).append("\n");
         }
         sender.SENDER.sendGroupMsg(msg.getGroupCode(), sb.toString().trim());
@@ -316,7 +314,7 @@ public class HorseRunListener {
     /**
      * 根据传入的马赛场实况类，制作出马赛场图
      */
-    public String drawHorse(@NotNull Horse horse) {
+    public String drawHorse(Horse horse) {
         StringBuilder stringBuilder = new StringBuilder();
 
         for (int i = 0; i < horse.getPosition().size(); i++) {
@@ -324,7 +322,7 @@ public class HorseRunListener {
             for (int j = 0; j < 9 - horse.getPosition().get(i); j++) {
                 stringBuilder.append("Ξ"); //
             }
-            stringBuilder.append(emojis[horse.getType().get(i)]);//画马
+            stringBuilder.append(EMOJI_LIST[horse.getType().get(i)]);//画马
             for (int j = 0; j < horse.getPosition().get(i) - 1; j++) {
                 stringBuilder.append("Ξ");//
             }
@@ -370,23 +368,24 @@ public class HorseRunListener {
         @Override
         public void run() {
             final BotSender sender = botManager.defaultBot().getSender();
-            Random random = new Random();
             int progress = 0;
             while (fighting) {
                 progressList.put(groupQQ, progress++);
                 try {
-                    Thread.sleep(random.nextInt(1000) + 2000);
+                    Thread.sleep(RandomUtils.nextInt(1, 1000) + 2000L);
                 } catch (InterruptedException e) {
                     e.printStackTrace();
+                    Thread.currentThread().interrupt();
                 }
                 String s = event();
                 sender.SENDER.sendGroupMsg(groupQQ, s);//事件发生器
                 add();//所有马向前跑一格
                 sender.SENDER.sendGroupMsg(groupQQ, drawHorse(horse));
                 try {
-                    Thread.sleep(random.nextInt(1000) + 3000);
+                    Thread.sleep(RandomUtils.nextInt(1, 1000) + 3000L);
                 } catch (InterruptedException e) {
                     e.printStackTrace();
+                    Thread.currentThread().interrupt();
                 }
             }
             sender.SENDER.sendGroupMsg(groupQQ, drawHorse(horse));//最后再画一次马图
@@ -399,14 +398,14 @@ public class HorseRunListener {
         private StringBuilder getWinners() {
             Map<Long, int[]> map = maList.get(groupQQ); // int[0]->马的编号 int[1]->钱
             List<Long> winner = new ArrayList<>();
-            for (Long qq : map.keySet()) {
+            map.forEach((qq, value) -> {
                 int[] intArray = map.get(qq);
                 if (Arrays.binarySearch(intArray, winnerHorse) >= 0) {
                     winner.add(qq);
                 }
-            }
+            });
             StringBuilder sb = new StringBuilder();
-            if (winner.size() == 0) {
+            if (winner.isEmpty()) {
                 sb.append("本次赛马无人押中，很遗憾");
             } else {
                 sb.append("恭喜");
@@ -445,20 +444,19 @@ public class HorseRunListener {
         }
 
         public String event() {
-            Random random = new Random();
             //计算这次发生的是好事还是坏事
-            if (random.nextInt(77) > 32) {
+            if (RandomUtils.nextInt(1, 77) > 32) {
                 //好事
-                int i = random.nextInt(horse.getPosition().size());//作用于哪只马
+                int i = RandomUtils.nextInt(1, horse.getPosition().size());//作用于哪只马
                 horseList.set(i, horseList.get(i) + 1);
-                return horseEvent.getGoodHorseEvent().get(
-                        random.nextInt(horseEvent.getGoodHorseEvent().size())).replace("?", String.valueOf(i + 1));
+                return HORSE_EVENT.getGoodHorseEvent().get(
+                        RandomUtils.nextInt(1, HORSE_EVENT.getGoodHorseEvent().size())).replace("?", String.valueOf(i + 1));
             } else {
                 //坏事
-                int i = random.nextInt(horse.getPosition().size());
+                int i = RandomUtils.nextInt(1, horse.getPosition().size());
                 horseList.set(i, horseList.get(i) - 1);
-                return horseEvent.getBedHorseEvent().get(
-                        random.nextInt(horseEvent.getBedHorseEvent().size())).replace("?", String.valueOf(i + 1));
+                return HORSE_EVENT.getBedHorseEvent().get(
+                        RandomUtils.nextInt(1, HORSE_EVENT.getBedHorseEvent().size())).replace("?", String.valueOf(i + 1));
             }
         }
     }

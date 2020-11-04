@@ -13,7 +13,7 @@ public class MySpringApplication {
     public static void main(String[] args) {
         //初始化数据库文件
         InitDatabase InitDatabase = new InitDatabase();
-        InitDatabase.InitDB();
+        InitDatabase.initDB();
 
         //开启服务
         SpringApplication.run(MySpringApplication.class, args);

@@ -1,5 +1,6 @@
 package io.koschicken.utils.bilibili;
 
+import com.alibaba.fastjson.JSON;
 import com.alibaba.fastjson.JSONObject;
 import io.koschicken.utils.ApiConnect;
 import org.apache.commons.io.FileUtils;
@@ -22,42 +23,6 @@ public class BilibiliUser {
     public BilibiliUser(String mid) throws IOException {
         this.mid = mid;
         fresh();
-    }
-
-    public String getMid() {
-        return mid;
-    }
-
-    public String getUname() {
-        return uname;
-    }
-
-    public void setUname(String uname) {
-        this.uname = uname;
-    }
-
-    public int getRoomId() {
-        return roomId;
-    }
-
-    public void setRoomId(int roomId) {
-        this.roomId = roomId;
-    }
-
-    public File getFace() {
-        return face;
-    }
-
-    public void setFace(File face) {
-        this.face = face;
-    }
-
-    public String getSign() {
-        return sign;
-    }
-
-    public void setSign(String sign) {
-        this.sign = sign;
     }
 
     public static String get(String getUrl) {
@@ -100,9 +65,45 @@ public class BilibiliUser {
         return get(url);
     }
 
+    public String getMid() {
+        return mid;
+    }
+
+    public String getUname() {
+        return uname;
+    }
+
+    public void setUname(String uname) {
+        this.uname = uname;
+    }
+
+    public int getRoomId() {
+        return roomId;
+    }
+
+    public void setRoomId(int roomId) {
+        this.roomId = roomId;
+    }
+
+    public File getFace() {
+        return face;
+    }
+
+    public void setFace(File face) {
+        this.face = face;
+    }
+
+    public String getSign() {
+        return sign;
+    }
+
+    public void setSign(String sign) {
+        this.sign = sign;
+    }
+
     public void fresh() throws IOException {
         String user = getUser(mid);
-        JSONObject jsonObject = JSONObject.parseObject(user);
+        JSONObject jsonObject = JSON.parseObject(user);
         JSONObject data = jsonObject.getJSONObject("data");
 
         uname = data.getString("name");

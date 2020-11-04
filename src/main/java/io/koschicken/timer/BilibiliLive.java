@@ -24,7 +24,7 @@ import static io.koschicken.listener.BilibiliListener.liveHashMap;
 @EnableScheduling
 public class BilibiliLive {
 
-    private final static Logger LOGGER = LoggerFactory.getLogger(BilibiliLive.class);
+    private static final Logger LOGGER = LoggerFactory.getLogger(BilibiliLive.class);
 
     @Autowired
     ScoresService scoresServiceImpl;
@@ -42,7 +42,7 @@ public class BilibiliLive {
             cache = liveHashMap.get(s);
             i = cache.getLiveStatus();
             try {
-                cache.frash();
+                cache.fresh();
             } catch (IOException e) {
                 e.printStackTrace();
             }
@@ -90,7 +90,7 @@ public class BilibiliLive {
                 }
             }
             if (stringBuilder.length() > 0) {
-                LOGGER.info("群友{}的提醒消息为{}", people.getQQ(), stringBuilder.toString());
+                LOGGER.info("群友{}的提醒消息为{}", people.getQQ(), stringBuilder);
                 for (String groupCode : groupSet) {
                     msgSender.SENDER.sendGroupMsg(groupCode, stringBuilder.toString());
                 }

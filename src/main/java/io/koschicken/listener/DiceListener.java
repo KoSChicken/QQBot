@@ -37,7 +37,7 @@ public class DiceListener {
     }
 
     @Autowired
-    ScoresService ScoresServiceImpl;
+    ScoresService scoresServiceImpl;
 
     @Autowired
     private BotManager botManager;
@@ -95,7 +95,7 @@ public class DiceListener {
             sender.SENDER.sendGroupMsg(msg.getGroupCode(), "反向下注不可取");
             return;
         }
-        Scores scores = ScoresServiceImpl.getById(msg.getCodeNumber());
+        Scores scores = scoresServiceImpl.getById(msg.getCodeNumber());
         if (scores == null || scores.getScore() - coin < 0) {
             sender.SENDER.sendGroupMsg(msg.getGroupCode(), "没那么多可以下注的币");
             return;
@@ -109,7 +109,7 @@ public class DiceListener {
             list.add(String.valueOf(coin));
             diceMap.get(msg.getGroupCode()).put(msg.getCodeNumber(), list);
             scores.setScore(scores.getScore() - coin);
-            ScoresServiceImpl.updateById(scores);
+            scoresServiceImpl.updateById(scores);
             sender.SENDER.sendGroupMsg(msg.getGroupCode(), "下注完成");
         }
         int size = diceMap.get(msg.getGroupCode()).size();
@@ -160,7 +160,7 @@ public class DiceListener {
         while (iterator.hasNext()) {
             Long entry = iterator.next();
             if (group.get(entry).get(0).equals(result)) {
-                Scores byId = ScoresServiceImpl.getById(entry);
+                Scores byId = scoresServiceImpl.getById(entry);
                 double rate;
                 if ("豹子".equals(result)) {
                     rate = RATE_B;
@@ -171,75 +171,9 @@ public class DiceListener {
                 list.add(byId);
             }
         }
-        ScoresServiceImpl.updateBatchById(list);
+        scoresServiceImpl.updateBatchById(list);
         diceMap.remove(groupQQ);
         progressMap.remove(groupQQ);
-    }
-
-    public class Dice extends Thread {
-        private final String groupQQ;
-
-        public Dice(String groupQQ) {
-            this.groupQQ = groupQQ;
-        }
-
-        @Override
-        public void run() {
-            final BotSender sender = botManager.defaultBot().getSender();
-            List<String> diceResult = new ArrayList<>();
-            Random random = new Random();
-            progressMap.put(groupQQ, true);
-            boolean allSame = true; // 豹子flag
-            int sum = 0;
-
-            for (int i = 0; i < 3; i++) {
-                try {
-                    Thread.sleep(random.nextInt(1000) + 1000);
-                } catch (InterruptedException e) {
-                    e.printStackTrace();
-                }
-                int roll = roll();
-                sum += roll;
-                diceResult.add(String.valueOf(roll));
-                if (i != 0 && roll != Integer.parseInt(diceResult.get(i - 1))) {
-                    allSame = false;
-                }
-                sender.SENDER.sendGroupMsg(groupQQ, String.valueOf(roll));
-                try {
-                    Thread.sleep(random.nextInt(1000) + 1000);
-                } catch (InterruptedException e) {
-                    e.printStackTrace();
-                }
-            }
-            String result = result(allSame, sum);
-            sender.SENDER.sendGroupMsg(groupQQ, "骰子结果为：" + result);
-            StringBuilder sb = getWinners(result);
-            sender.SENDER.sendGroupMsg(groupQQ, sb.toString());
-            allClear(groupQQ, result); //收钱
-        }
-
-        private StringBuilder getWinners(String result) {
-            Map<Long, List<String>> map = diceMap.get(groupQQ);
-            List<Long> winner = new ArrayList<>();
-            for (Long qq : map.keySet()) {
-                List<String> list = map.get(qq);
-                String str = list.get(0);
-                if (str.equals(result)) {
-                    winner.add(qq);
-                }
-            }
-            StringBuilder sb = new StringBuilder();
-            if (winner.size() == 0) {
-                sb.append("本次骰子游戏无人押中，很遗憾");
-            } else {
-                sb.append("恭喜");
-                for (Long qq : winner) {
-                    sb.append(" [CQ:at,qq=").append(qq).append("] ");
-                }
-                sb.append("押中🎲，赢得了奖金");
-            }
-            return sb;
-        }
     }
 
     private int roll() {
@@ -256,6 +190,73 @@ public class DiceListener {
                 return "大";
             }
             return "";
+        }
+    }
+
+    public class Dice extends Thread {
+        private final String groupQQ;
+
+        public Dice(String groupQQ) {
+            this.groupQQ = groupQQ;
+        }
+
+        @Override
+        public void run() {
+            final BotSender sender = botManager.defaultBot().getSender();
+            List<String> diceResult = new ArrayList<>();
+            progressMap.put(groupQQ, true);
+            boolean allSame = true; // 豹子flag
+            int sum = 0;
+
+            for (int i = 0; i < 3; i++) {
+                try {
+                    Thread.sleep(RandomUtils.nextInt(1, 1000) + 1000L);
+                } catch (InterruptedException e) {
+                    e.printStackTrace();
+                    Thread.currentThread().interrupt();
+                }
+                int roll = roll();
+                sum += roll;
+                diceResult.add(String.valueOf(roll));
+                if (i != 0 && roll != Integer.parseInt(diceResult.get(i - 1))) {
+                    allSame = false;
+                }
+                sender.SENDER.sendGroupMsg(groupQQ, String.valueOf(roll));
+                try {
+                    Thread.sleep(RandomUtils.nextInt(1, 1000) + 1000L);
+                } catch (InterruptedException e) {
+                    e.printStackTrace();
+                    Thread.currentThread().interrupt();
+                }
+            }
+            String result = result(allSame, sum);
+            sender.SENDER.sendGroupMsg(groupQQ, "骰子结果为：" + result);
+            StringBuilder sb = getWinners(result);
+            sender.SENDER.sendGroupMsg(groupQQ, sb.toString());
+            allClear(groupQQ, result); //收钱
+        }
+
+        private StringBuilder getWinners(String result) {
+            Map<Long, List<String>> map = diceMap.get(groupQQ);
+            List<Long> winner = new ArrayList<>();
+            map.forEach((qq, value) -> {
+                List<String> list = map.get(qq);
+                String str = list.get(0);
+                if (str.equals(result)) {
+                    winner.add(qq);
+                }
+            });
+            StringBuilder sb = new StringBuilder();
+            if (winner.isEmpty()) {
+                sb.append("本次骰子游戏无人押中，很遗憾");
+            } else {
+                sb.append("恭喜");
+                for (Long qq : winner) {
+                    sb.append(" [CQ:at,qq=").append(qq).append("] ");
+                }
+                sb.append("押中🎲，赢得了奖金");
+            }
+            return sb;
         }
     }
 }

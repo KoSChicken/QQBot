@@ -1,5 +1,6 @@
 package io.koschicken.utils.bilibili;
 
+import com.alibaba.fastjson.JSON;
 import com.alibaba.fastjson.JSONObject;
 import io.koschicken.utils.ApiConnect;
 import org.apache.commons.io.FileUtils;
@@ -23,7 +24,7 @@ public class BilibiliVideo {
         } else {
             this.bv = BvAndAv.v2b(avbv);
         }
-        frash();
+        fresh();
     }
 
     /**
@@ -67,7 +68,7 @@ public class BilibiliVideo {
      * "subtitle":{"allow_submit":true,"list":[]}
      * }}
      */
-    public static String getVideobyAV(String av) {
+    public static String getVideoByAV(String av) {
         String url = "http://api.bilibili.com/x/web-interface/view?aid=" + av;
         return get(url);
     }
@@ -81,14 +82,11 @@ public class BilibiliVideo {
         return ApiConnect.httpRequest(getUrl);
     }
 
-    public void frash() throws IOException {
-        String videobyBV = getVideobyBV(bv);
-        JSONObject jsonObject = JSONObject.parseObject(videobyBV);
+    public void fresh() throws IOException {
+        String videoByBV = getVideobyBV(bv);
+        JSONObject jsonObject = JSON.parseObject(videoByBV);
         JSONObject data = jsonObject.getJSONObject("data");
-
-        // av = jsonObject.getString("data");
         title = data.getString("title");
-
         String fileName = getImageName(data.getString("pic"));
         if (pic == null || pic.getName().equals(fileName)) {
             pic = new File(TEMP + fileName);

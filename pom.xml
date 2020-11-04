@@ -1,20 +1,20 @@
 <?xml version="1.0" encoding="UTF-8"?>
-<project xmlns="http://maven.apache.org/POM/4.0.0"
-         xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+<project xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+         xmlns="http://maven.apache.org/POM/4.0.0"
          xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/xsd/maven-4.0.0.xsd">
     <modelVersion>4.0.0</modelVersion>
 
     <groupId>io.kochicken</groupId>
     <artifactId>qq-bot</artifactId>
-    <version>0.1.2</version>
+    <version>0.2.0</version>
     <parent>
         <groupId>org.springframework.boot</groupId>
         <artifactId>spring-boot-starter-parent</artifactId>
-        <version>2.2.8.RELEASE</version>
+        <version>2.3.3.RELEASE</version>
     </parent>
     <properties>
-        <core-starter.version>1.14.0</core-starter.version>
-        <component-mirai-starter.version>0.5-1.14</component-mirai-starter.version>
+        <core-starter.version>1.15.0</core-starter.version>
+        <component-mirai-starter.version>0.6.3-1.15</component-mirai-starter.version>
     </properties>
 
     <build>
@@ -71,22 +71,6 @@
             <artifactId>spring-boot-starter-undertow</artifactId>
         </dependency>
 
-        <dependency>
-            <groupId>org.springframework.boot</groupId>
-            <artifactId>spring-boot-starter-thymeleaf</artifactId>
-        </dependency>
-
-        <!--读写excel文件-->
-        <dependency>
-            <groupId>org.apache.poi</groupId>
-            <artifactId>poi</artifactId>
-            <version>4.1.2</version>
-        </dependency>
-        <dependency>
-            <groupId>org.apache.poi</groupId>
-            <artifactId>poi-ooxml</artifactId>
-            <version>4.1.2</version>
-        </dependency>
         <!--jdbc-->
         <dependency>
             <groupId>org.xerial</groupId>

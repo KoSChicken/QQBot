@@ -73,18 +73,14 @@ public class SetuListener {
     @Autowired
     private ScoresService scoresServiceImpl;
 
-//    @Autowired
-//    private PicService picServiceImpl;
-
     @Listen(MsgGetTypes.groupMsg)
     @Filter(value = {"叫车(.*)(.*)?(|r18)", "来(.*?)[点丶份张幅](.*?)的?(|r18)[色瑟涩][图圖]"})
     public void jiaoche(GroupMsg msg, MsgSender sender) {
-        // sender.SENDER.sendGroupMsg(msg.getGroupCode(), "别叫了，群主不喜欢");
         if (isCool(msg.getQQ(), msg.getGroupCode())) {
             Scores coin = scoresServiceImpl.getById(msg.getCodeNumber());
             if (coin == null) {
                 createScore(msg, sender);
-            } else if (coin.getScore() >= princessConfig.getSetuCoin()) {
+            } else if (coin.getScore() >= PRINCESS_CONFIG.getSetuCoin()) {
                 String message = msg.getMsg();
                 String regex;
                 if (message.startsWith("叫车")) {
@@ -108,8 +104,8 @@ public class SetuListener {
                             } else {
                                 num = NUMBER.get(number);
                             }
-                        } catch (NumberFormatException e) {
-                            LOGGER.info("不是数字，默认为1");
+                        } catch (NumberFormatException ignore) {
+                            LOGGER.info("number set to 1");
                         }
                         tag = m.group(1).trim();
                     } else {
@@ -120,8 +116,8 @@ public class SetuListener {
                             } else {
                                 num = NUMBER.get(number);
                             }
-                        } catch (NumberFormatException e) {
-                            LOGGER.info("不是数字，默认为1");
+                        } catch (NumberFormatException ignore) {
+                            LOGGER.info("number set to 1");
                         }
                         tag = m.group(2).trim();
                     }
@@ -132,7 +128,7 @@ public class SetuListener {
                 if (QQ != null) {
                     groupMember(msg, sender, QQ);
                 } else {
-                    if (!canSendImage) {
+                    if (!CAN_SEND_IMAGE) {
                         sender.SENDER.sendGroupMsg(msg.getGroupCode(), "机器人还不能发图片");
                         return;
                     }
@@ -141,7 +137,7 @@ public class SetuListener {
                     refreshCooldown(msg.getQQ(), msg.getGroupCode());
                 }
             } else {
-                sender.SENDER.sendGroupMsg(msg.getGroupCode(), coolQAt + msg.getQQCode() + "]" +
+                sender.SENDER.sendGroupMsg(msg.getGroupCode(), CQ_AT + msg.getQQCode() + "]" +
                         "你没钱了，请尝试签到或找开发者PY");
             }
         } else {
@@ -155,7 +151,7 @@ public class SetuListener {
         scores.setQQ(msg.getCodeNumber());
         scores.setScore(0);
         scoresServiceImpl.save(scores);
-        sender.SENDER.sendGroupMsg(msg.getGroupCode(), coolQAt + msg.getQQCode() + "]" +
+        sender.SENDER.sendGroupMsg(msg.getGroupCode(), CQ_AT + msg.getQQCode() + "]" +
                 "你没钱了，请尝试签到或找开发者PY");
     }
 
@@ -180,14 +176,14 @@ public class SetuListener {
     @Filter(value = {"叫车(.*)(.*)?(|r18)", "来(.*?)[点丶份张幅](.*?)的?(|r18)[色瑟涩][图圖]"})
     public void config(PrivateMsg msg, MsgSender sender) {
         if (isCool(msg.getQQ(), "0")) {
-            if (!canSendImage) {
+            if (!CAN_SEND_IMAGE) {
                 sender.SENDER.sendGroupMsg(msg.getQQCode(), "机器人还不能发图片");
                 return;
             }
             Scores coin = scoresServiceImpl.getById(msg.getCodeNumber());
             if (coin == null) {
                 createScore(msg, sender);
-            } else if (coin.getScore() >= princessConfig.getSetuCoin()) {
+            } else if (coin.getScore() >= PRINCESS_CONFIG.getSetuCoin()) {
                 String message = msg.getMsg();
                 String regex;
                 if (message.startsWith("叫车")) {
@@ -300,10 +296,9 @@ public class SetuListener {
         private final Boolean r18;
         private final Scores coin;
         private final ScoresService scoresService;
-        // private final PicService picService;
 
         public SendSetu(String groupCode, String privateQQ, MsgSender sender, String tag, Integer num,
-                        Boolean r18, Scores coin, ScoresService scoresService/*, PicService picService*/) {
+                        Boolean r18, Scores coin, ScoresService scoresService) {
             this.groupCode = groupCode;
             this.privateQQ = privateQQ;
             this.sender = sender;
@@ -312,7 +307,6 @@ public class SetuListener {
             this.r18 = r18;
             this.coin = coin;
             this.scoresService = scoresService;
-            // this.picService = picService;
         }
 
         @Override
@@ -321,7 +315,6 @@ public class SetuListener {
             try {
                 List<Pixiv> setu = getSetu(tag, num, r18);
                 Pixiv pixiv = setu.get(0);
-                // LOGGER.info("pixiv: {}", pixiv);
                 String code = pixiv.getCode();
                 boolean fromLolicon = "0".equals(code);
                 if ("200".equals(code) || fromLolicon) {
@@ -364,7 +357,7 @@ public class SetuListener {
                         }
                         sendCount++;
                     }
-                    coin.setScore(coin.getScore() - princessConfig.getSetuCoin() * sendCount);
+                    coin.setScore(coin.getScore() - PRINCESS_CONFIG.getSetuCoin() * sendCount);
                     scoresService.updateById(coin); // 按照实际发送的张数来扣除叫车者的币
                 } else {
                     if (StringUtils.isEmpty(groupCode)) {

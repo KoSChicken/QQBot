@@ -4,7 +4,7 @@ import java.util.ArrayList;
 import java.util.List;
 import java.util.Random;
 
-import static io.koschicken.Constants.emojis;
+import static io.koschicken.Constants.EMOJI_LIST;
 
 public class Horse {
 
@@ -26,11 +26,11 @@ public class Horse {
         position.add(0);
         position.add(0);
         type = new ArrayList<>();
-        type.add(random.nextInt(emojis.length));
-        type.add(random.nextInt(emojis.length));
-        type.add(random.nextInt(emojis.length));
-        type.add(random.nextInt(emojis.length));
-        type.add(random.nextInt(emojis.length));
+        type.add(random.nextInt(EMOJI_LIST.length));
+        type.add(random.nextInt(EMOJI_LIST.length));
+        type.add(random.nextInt(EMOJI_LIST.length));
+        type.add(random.nextInt(EMOJI_LIST.length));
+        type.add(random.nextInt(EMOJI_LIST.length));
     }
 
     public List<Integer> getPosition() {

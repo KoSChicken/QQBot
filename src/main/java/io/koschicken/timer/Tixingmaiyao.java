@@ -11,7 +11,7 @@ import org.springframework.stereotype.Component;
 import java.io.File;
 import java.util.Set;
 
-import static io.koschicken.Constants.princessConfig;
+import static io.koschicken.Constants.PRINCESS_CONFIG;
 import static io.koschicken.listener.PrincessIntercept.On;
 
 @Component
@@ -25,7 +25,7 @@ public class Tixingmaiyao {
     public void execute() {
         BotSender msgSender = botManager.defaultBot().getSender();
         try {
-            File file = new File("./image/" + princessConfig.getTixingmaiyao());
+            File file = new File("./image/" + PRINCESS_CONFIG.getTixingmaiyao());
             String str;
             if (file.exists()) {
                 KQCodeUtils kqCodeUtils = KQCodeUtils.getInstance();

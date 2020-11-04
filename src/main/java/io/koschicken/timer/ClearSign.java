@@ -2,8 +2,6 @@ package io.koschicken.timer;
 
 import io.koschicken.database.service.ScoresService;
 import org.apache.commons.io.FileUtils;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.scheduling.annotation.EnableScheduling;
 import org.springframework.scheduling.annotation.Scheduled;
@@ -18,8 +16,6 @@ import java.io.IOException;
 @Component
 @EnableScheduling
 public class ClearSign {
-
-    private static final Logger LOGGER = LoggerFactory.getLogger(ClearSign.class);
 
     @Autowired
     ScoresService scoresServiceImpl;

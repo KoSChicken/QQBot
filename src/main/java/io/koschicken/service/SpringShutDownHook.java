@@ -5,7 +5,6 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 
-import java.io.FileNotFoundException;
 import java.text.SimpleDateFormat;
 import java.util.Date;
 
@@ -17,6 +16,7 @@ public class SpringShutDownHook {
     BotManager botManager;
 
     public void destroy() {
-        LOGGER.info(new SimpleDateFormat("yyyy-MM-dd hh:mm:ss").format(new Date()) + "    机器人关闭");
+        String now = new SimpleDateFormat("yyyy-MM-dd hh:mm:ss").format(new Date());
+        LOGGER.info("{}     机器人关闭", now);
     }
 }

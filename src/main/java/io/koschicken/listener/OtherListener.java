@@ -24,7 +24,7 @@ import org.springframework.stereotype.Service;
 import java.io.File;
 import java.io.IOException;
 import java.io.InputStream;
-import java.util.Random;
+import java.nio.file.Files;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
@@ -39,13 +39,13 @@ public class OtherListener {
     private static final String TEMP = "./temp/";
 
     @Autowired
-    ScoresService ScoresServiceImpl;
+    private ScoresService scoresServiceImpl;
 
     @Listen(MsgGetTypes.groupMsg)
     @Filter(value = {"#帮助", "#help", "帮助"}, at = true, keywordMatchType = KeywordMatchType.STARTS_WITH)
     public void testListen1(GroupMsg msg, MsgSender sender) {
         sender.SENDER.sendGroupMsg(msg.getGroupCode(), "请输入【#序号】获取帮助详情");
-        sender.SENDER.sendGroupMsg(msg.getGroupCode(), helpMsg);
+        sender.SENDER.sendGroupMsg(msg.getGroupCode(), HELP_MSG);
     }
 
     @Listen(MsgGetTypes.groupMsg)
@@ -76,15 +76,15 @@ public class OtherListener {
     @Listen(value = MsgGetTypes.groupMsg)
     @Filter(value = {"#bilibili相关帮助", "#5"}, keywordMatchType = KeywordMatchType.TRIM_EQUALS)
     public void bilibiliListen(GroupMsg msg, MsgSender sender) {
-        sender.SENDER.sendGroupMsg(msg.getGroupCode(), BilibiliMsg);
-        sender.SENDER.sendGroupMsg(msg.getGroupCode(), BilibiliMsg_P2);
+        sender.SENDER.sendGroupMsg(msg.getGroupCode(), BILIBILI_MSG);
+        sender.SENDER.sendGroupMsg(msg.getGroupCode(), BILIBILI_MSG_P2);
     }
 
     @Listen(MsgGetTypes.privateMsg)
     @Filter(value = {"帮助", "#帮助", "#help"}, keywordMatchType = KeywordMatchType.TRIM_EQUALS)
     public void configListen1(PrivateMsg msg, MsgSender sender) {
         sender.SENDER.sendPrivateMsg(msg.getQQCode(), "请输入【#序号】获取帮助详情");
-        sender.SENDER.sendPrivateMsg(msg.getQQCode(), helpMsg);
+        sender.SENDER.sendPrivateMsg(msg.getQQCode(), HELP_MSG);
     }
 
     @Listen(MsgGetTypes.privateMsg)
@@ -115,8 +115,8 @@ public class OtherListener {
     @Listen(value = MsgGetTypes.privateMsg)
     @Filter(value = {"bilibili相关帮助", "#bilibili相关帮助", "#5"}, keywordMatchType = KeywordMatchType.TRIM_EQUALS)
     public void bilibiliListen(PrivateMsg msg, MsgSender sender) {
-        sender.SENDER.sendPrivateMsg(msg.getQQCode(), BilibiliMsg);
-        sender.SENDER.sendPrivateMsg(msg.getQQCode(), BilibiliMsg_P2);
+        sender.SENDER.sendPrivateMsg(msg.getQQCode(), BILIBILI_MSG);
+        sender.SENDER.sendPrivateMsg(msg.getQQCode(), BILIBILI_MSG_P2);
     }
 
     @Listen(MsgGetTypes.groupMsg)
@@ -124,7 +124,7 @@ public class OtherListener {
     public void openEgg(GroupMsg msg, MsgSender sender) {
         try {
             PowerType powerType = sender.GETTER.getGroupMemberInfo(msg.getGroupCode(), msg.getQQCode()).getPowerType();
-            if (powerType.isAdmin() || powerType.isOwner() || princessConfig.getMasterQQ().equals(msg.getQQCode())) {
+            if (powerType.isAdmin() || powerType.isOwner() || PRINCESS_CONFIG.getMasterQQ().equals(msg.getQQCode())) {
                 On.put(msg.getGroupCode(), On.get(msg.getGroupCode()).setGachaSwitch(false));
                 sender.SENDER.sendGroupMsg(msg.getGroupCode(), "已关闭扭蛋");
                 setJson();
@@ -144,7 +144,7 @@ public class OtherListener {
     public void shutEgg(GroupMsg msg, MsgSender sender) {
         try {
             PowerType powerType = sender.GETTER.getGroupMemberInfo(msg.getGroupCode(), msg.getQQCode()).getPowerType();
-            if (powerType.isAdmin() || powerType.isOwner() || princessConfig.getMasterQQ().equals(msg.getQQCode())) {
+            if (powerType.isAdmin() || powerType.isOwner() || PRINCESS_CONFIG.getMasterQQ().equals(msg.getQQCode())) {
                 On.put(msg.getGroupCode(), On.get(msg.getGroupCode()).setGachaSwitch(true));
                 sender.SENDER.sendGroupMsg(msg.getGroupCode(), "已开启扭蛋");
                 setJson();
@@ -163,7 +163,7 @@ public class OtherListener {
     public void shutBuy(GroupMsg msg, MsgSender sender) {
         try {
             PowerType powerType = sender.GETTER.getGroupMemberInfo(msg.getGroupCode(), msg.getQQCode()).getPowerType();
-            if (powerType.isAdmin() || powerType.isOwner() || princessConfig.getMasterQQ().equals(msg.getQQCode())) {
+            if (powerType.isAdmin() || powerType.isOwner() || PRINCESS_CONFIG.getMasterQQ().equals(msg.getQQCode())) {
                 On.put(msg.getGroupCode(), On.get(msg.getGroupCode()).setMaiyaoSwitch(false));
                 sender.SENDER.sendGroupMsg(msg.getGroupCode(), "已关闭提醒买药小助手");
                 setJson();
@@ -183,7 +183,7 @@ public class OtherListener {
     public void openBuy(GroupMsg msg, MsgSender sender) {
         try {
             PowerType powerType = sender.GETTER.getGroupMemberInfo(msg.getGroupCode(), msg.getQQCode()).getPowerType();
-            if (powerType.isAdmin() || powerType.isOwner() || princessConfig.getMasterQQ().equals(msg.getQQCode())) {
+            if (powerType.isAdmin() || powerType.isOwner() || PRINCESS_CONFIG.getMasterQQ().equals(msg.getQQCode())) {
                 On.put(msg.getGroupCode(), On.get(msg.getGroupCode()).setMaiyaoSwitch(true));
                 sender.SENDER.sendGroupMsg(msg.getGroupCode(), "已开启提醒买药小助手");
                 setJson();
@@ -204,31 +204,31 @@ public class OtherListener {
         getGachaConfig();
         getEvent();
         sender.SENDER.sendPrivateMsg(msg.getQQCode(), "扭蛋池，马事件已更新,现在设置为：\n" +
-                "提醒买药小助手图片名:" + princessConfig.getTixingmaiyao() +
-                "\n抽卡上限" + princessConfig.getGachaLimit() +
-                "\n抽卡冷却:" + princessConfig.getGachaCooldown() +
-                "\n总开关默认：" + princessConfig.isGlobalSwitch() +
-                "\n好像没啥用的开关默认：" + princessConfig.isMaiyaoSwitch() +
-                "\n扭蛋开关默认：" + princessConfig.isGachaSwitch() +
-                "\n赛马开关默认：" + princessConfig.isHorseSwitch() +
-                "\nr18私聊开关默认：" + princessConfig.isR18Private() +
-                "\nmasterQQ：" + princessConfig.getMasterQQ());
+                "提醒买药小助手图片名:" + PRINCESS_CONFIG.getTixingmaiyao() +
+                "\n抽卡上限" + PRINCESS_CONFIG.getGachaLimit() +
+                "\n抽卡冷却:" + PRINCESS_CONFIG.getGachaCooldown() +
+                "\n总开关默认：" + PRINCESS_CONFIG.isGlobalSwitch() +
+                "\n好像没啥用的开关默认：" + PRINCESS_CONFIG.isMaiyaoSwitch() +
+                "\n扭蛋开关默认：" + PRINCESS_CONFIG.isGachaSwitch() +
+                "\n赛马开关默认：" + PRINCESS_CONFIG.isHorseSwitch() +
+                "\nr18私聊开关默认：" + PRINCESS_CONFIG.isR18Private() +
+                "\nmasterQQ：" + PRINCESS_CONFIG.getMasterQQ());
     }
 
     @Listen(MsgGetTypes.privateMsg)
     @Filter(value = {"通用设置"}, keywordMatchType = KeywordMatchType.TRIM_EQUALS)
     public void config(PrivateMsg msg, MsgSender sender) {
         sender.SENDER.sendPrivateMsg(msg.getQQCode(), "现在设置为：\n" +
-                "提醒买药小助手图片名:" + princessConfig.getTixingmaiyao() +
-                "\n抽卡上限" + princessConfig.getGachaLimit() +
-                "\n抽卡冷却:" + princessConfig.getGachaCooldown() +
-                "\n总开关默认：" + princessConfig.isGlobalSwitch() +
-                "\n好像没啥用的开关默认：" + princessConfig.isMaiyaoSwitch() +
-                "\n扭蛋开关默认：" + princessConfig.isGachaSwitch() +
-                "\n赛马开关默认：" + princessConfig.isHorseSwitch() +
-                "\nr18私聊开关默认：" + princessConfig.isR18Private() +
-                "\nB站：" + StringUtils.isEmpty(princessConfig.getBilibiliCookie()) +
-                "\nmasterQQ：" + princessConfig.getMasterQQ());
+                "提醒买药小助手图片名:" + PRINCESS_CONFIG.getTixingmaiyao() +
+                "\n抽卡上限" + PRINCESS_CONFIG.getGachaLimit() +
+                "\n抽卡冷却:" + PRINCESS_CONFIG.getGachaCooldown() +
+                "\n总开关默认：" + PRINCESS_CONFIG.isGlobalSwitch() +
+                "\n好像没啥用的开关默认：" + PRINCESS_CONFIG.isMaiyaoSwitch() +
+                "\n扭蛋开关默认：" + PRINCESS_CONFIG.isGachaSwitch() +
+                "\n赛马开关默认：" + PRINCESS_CONFIG.isHorseSwitch() +
+                "\nr18私聊开关默认：" + PRINCESS_CONFIG.isR18Private() +
+                "\nB站：" + StringUtils.isEmpty(PRINCESS_CONFIG.getBilibiliCookie()) +
+                "\nmasterQQ：" + PRINCESS_CONFIG.getMasterQQ());
     }
 
     @Listen(MsgGetTypes.groupMsg)
@@ -244,8 +244,8 @@ public class OtherListener {
     @Listen(MsgGetTypes.privateMsg)
     @Filter(value = {"刷新全部签到"}, keywordMatchType = KeywordMatchType.TRIM_EQUALS)
     public void refreshSign(PrivateMsg msg, MsgSender sender) {
-        if (msg.getQQCode().equals(princessConfig.getMasterQQ())) {
-            ScoresServiceImpl.clearSign();
+        if (msg.getQQCode().equals(PRINCESS_CONFIG.getMasterQQ())) {
+            scoresServiceImpl.clearSign();
             sender.SENDER.sendPrivateMsg(msg.getQQCode(), "已刷新全部签到");
         } else {
             sender.SENDER.sendPrivateMsg(msg.getQQCode(), "权限不足");
@@ -255,7 +255,7 @@ public class OtherListener {
     @Listen(MsgGetTypes.privateMsg)
     @Filter(value = {"清理临时文件夹"}, keywordMatchType = KeywordMatchType.TRIM_EQUALS)
     public void clearTemp(PrivateMsg msg, MsgSender sender) throws IOException {
-        if (msg.getQQCode().equals(princessConfig.getMasterQQ())) {
+        if (msg.getQQCode().equals(PRINCESS_CONFIG.getMasterQQ())) {
             File gachaFolder = new File("temp/gacha/");
             if (gachaFolder.exists()) {
                 FileUtils.deleteDirectory(gachaFolder);
@@ -273,8 +273,7 @@ public class OtherListener {
     @Listen(MsgGetTypes.groupMsg)
     @Filter(value = {"#讲几句难听的"}, keywordMatchType = KeywordMatchType.TRIM_EQUALS)
     public void zuichou(GroupMsg msg, MsgSender sender) {
-        Random random = new Random();
-        int i = random.nextInt(100);
+        int i = RandomUtils.nextInt(1, 101);
         LOGGER.info("nmsl? {}", i);
         if (i >= 80) {
             try {
@@ -319,8 +318,7 @@ public class OtherListener {
             LOGGER.info(pic.getAbsolutePath());
             String message = cqCodeImage.toString();
             sender.SENDER.sendGroupMsg(msg.getGroupCode(), message);
-            boolean delete = pic.delete();
-            LOGGER.info("文件删除成功了吗？{}", delete);
+            Files.delete(pic.toPath());
         } catch (Exception e) {
             e.printStackTrace();
         }

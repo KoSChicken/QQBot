@@ -1,12 +1,12 @@
 package io.koschicken.service;
 
-import com.forte.qqrobot.bot.BotManager;
 import io.koschicken.database.bean.Scores;
 import io.koschicken.database.service.ScoresService;
 import io.koschicken.utils.bilibili.BilibiliLive;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.context.ApplicationListener;
 import org.springframework.context.event.ContextRefreshedEvent;
+import org.springframework.lang.NonNull;
 import org.springframework.stereotype.Service;
 
 import java.io.IOException;
@@ -17,18 +17,12 @@ import static io.koschicken.listener.BilibiliListener.liveHashMap;
 @Service
 public class SpringRunAfter implements ApplicationListener<ContextRefreshedEvent> {
     @Autowired
-    ScoresService ScoresServiceImpl;
-
-    /**
-     * bot管理器
-     */
-    @Autowired
-    private BotManager botManager;
+    ScoresService scoresService;
 
     @Override
-    public void onApplicationEvent(ContextRefreshedEvent contextRefreshedEvent) {
+    public void onApplicationEvent(@NonNull ContextRefreshedEvent contextRefreshedEvent) {
         //直播监听
-        List<Scores> list = ScoresServiceImpl.getLive();
+        List<Scores> list = scoresService.getLive();
 
         for (Scores s : list) {
             if (s.getLive1() != 0 && liveHashMap.get(s.getLive1().toString()) == null) {

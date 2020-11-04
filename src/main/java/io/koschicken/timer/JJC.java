@@ -2,7 +2,6 @@ package io.koschicken.timer;
 
 import com.forte.qqrobot.bot.BotManager;
 import com.forte.qqrobot.bot.BotSender;
-import io.koschicken.database.service.ScoresService;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
