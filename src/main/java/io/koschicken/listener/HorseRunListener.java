@@ -143,7 +143,11 @@ public class HorseRunListener {
                     scores.setGroupCode(msg.getGroupCode());
                 }
                 scoresService.updateById(scores);
-                sender.SENDER.sendGroupMsg(msg.getGroupCode(), CQ_AT + msg.getQQ() + "] 签到成功，币+" + score + "，现在币:" + scores.getScore());
+                if (score > 15) {
+                    sender.SENDER.sendGroupMsg(msg.getGroupCode(), CQ_AT + msg.getQQ() + "] 签到成功，币+" + score + "，现在币:" + scores.getScore());
+                } else {
+                    sender.SENDER.sendGroupMsg(msg.getGroupCode(), CQ_AT + msg.getQQ() + "] 天选之人！币+" + score + "，现在币:" + scores.getScore());
+                }
             } else {
                 scores = new Scores();
                 scores.setQQ(msg.getCodeNumber());

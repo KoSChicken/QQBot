@@ -36,6 +36,7 @@ public class OtherListener {
     private static final Logger LOGGER = LoggerFactory.getLogger(OtherListener.class);
     private static final String ZUICHOU = "https://nmsl.shadiao.app/api.php";
     private static final String RAINBOW_FART = "https://chp.shadiao.app/api.php";
+    private static final String AVATAR_API = "http://thirdqq.qlogo.cn/g?b=qq&nk=";
     private static final String TEMP = "./temp/";
 
     @Autowired
@@ -203,42 +204,42 @@ public class OtherListener {
         getConfig();
         getGachaConfig();
         getEvent();
-        sender.SENDER.sendPrivateMsg(msg.getQQCode(), "扭蛋池，马事件已更新,现在设置为：\n" +
-                "提醒买药小助手图片名:" + PRINCESS_CONFIG.getTixingmaiyao() +
-                "\n抽卡上限" + PRINCESS_CONFIG.getGachaLimit() +
-                "\n抽卡冷却:" + PRINCESS_CONFIG.getGachaCooldown() +
-                "\n总开关默认：" + PRINCESS_CONFIG.isGlobalSwitch() +
-                "\n好像没啥用的开关默认：" + PRINCESS_CONFIG.isMaiyaoSwitch() +
-                "\n扭蛋开关默认：" + PRINCESS_CONFIG.isGachaSwitch() +
-                "\n赛马开关默认：" + PRINCESS_CONFIG.isHorseSwitch() +
-                "\nr18私聊开关默认：" + PRINCESS_CONFIG.isR18Private() +
-                "\nmasterQQ：" + PRINCESS_CONFIG.getMasterQQ());
+        sender.SENDER.sendPrivateMsg(msg.getQQCode(), "扭蛋池，马事件已更新,现在设置为：\n"
+                + "提醒买药小助手图片名:" + PRINCESS_CONFIG.getTixingmaiyao()
+                + "\n抽卡上限" + PRINCESS_CONFIG.getGachaLimit()
+                + "\n抽卡冷却:" + PRINCESS_CONFIG.getGachaCooldown()
+                + "\n总开关默认：" + PRINCESS_CONFIG.isGlobalSwitch()
+                + "\n好像没啥用的开关默认：" + PRINCESS_CONFIG.isMaiyaoSwitch()
+                + "\n扭蛋开关默认：" + PRINCESS_CONFIG.isGachaSwitch()
+                + "\n赛马开关默认：" + PRINCESS_CONFIG.isHorseSwitch()
+                + "\nr18私聊开关默认：" + PRINCESS_CONFIG.isR18Private()
+                + "\nmasterQQ：" + PRINCESS_CONFIG.getMasterQQ());
     }
 
     @Listen(MsgGetTypes.privateMsg)
     @Filter(value = {"通用设置"}, keywordMatchType = KeywordMatchType.TRIM_EQUALS)
     public void config(PrivateMsg msg, MsgSender sender) {
-        sender.SENDER.sendPrivateMsg(msg.getQQCode(), "现在设置为：\n" +
-                "提醒买药小助手图片名:" + PRINCESS_CONFIG.getTixingmaiyao() +
-                "\n抽卡上限" + PRINCESS_CONFIG.getGachaLimit() +
-                "\n抽卡冷却:" + PRINCESS_CONFIG.getGachaCooldown() +
-                "\n总开关默认：" + PRINCESS_CONFIG.isGlobalSwitch() +
-                "\n好像没啥用的开关默认：" + PRINCESS_CONFIG.isMaiyaoSwitch() +
-                "\n扭蛋开关默认：" + PRINCESS_CONFIG.isGachaSwitch() +
-                "\n赛马开关默认：" + PRINCESS_CONFIG.isHorseSwitch() +
-                "\nr18私聊开关默认：" + PRINCESS_CONFIG.isR18Private() +
-                "\nB站：" + StringUtils.isEmpty(PRINCESS_CONFIG.getBilibiliCookie()) +
-                "\nmasterQQ：" + PRINCESS_CONFIG.getMasterQQ());
+        sender.SENDER.sendPrivateMsg(msg.getQQCode(), "现在设置为：\n"
+                + "提醒买药小助手图片名:" + PRINCESS_CONFIG.getTixingmaiyao()
+                + "\n抽卡上限" + PRINCESS_CONFIG.getGachaLimit()
+                + "\n抽卡冷却:" + PRINCESS_CONFIG.getGachaCooldown()
+                + "\n总开关默认：" + PRINCESS_CONFIG.isGlobalSwitch()
+                + "\n好像没啥用的开关默认：" + PRINCESS_CONFIG.isMaiyaoSwitch()
+                + "\n扭蛋开关默认：" + PRINCESS_CONFIG.isGachaSwitch()
+                + "\n赛马开关默认：" + PRINCESS_CONFIG.isHorseSwitch()
+                + "\nr18私聊开关默认：" + PRINCESS_CONFIG.isR18Private()
+                + "\nB站：" + StringUtils.isEmpty(PRINCESS_CONFIG.getBilibiliCookie())
+                + "\nmasterQQ：" + PRINCESS_CONFIG.getMasterQQ());
     }
 
     @Listen(MsgGetTypes.groupMsg)
     @Filter(value = {"#查看本群设置"}, keywordMatchType = KeywordMatchType.TRIM_EQUALS)
     public void groupConfig(GroupMsg msg, MsgSender sender) {
         GroupPower groupPower = On.get(msg.getGroupCode());
-        sender.SENDER.sendPrivateMsg(msg.getQQCode(), "现在设置为：\n" +
-                "扭蛋开关:" + groupPower.isGachaSwitch() +
-                "\n买药小助手开关" + groupPower.isMaiyaoSwitch() +
-                "\n买马开关：" + groupPower.isHorseSwitch());
+        sender.SENDER.sendPrivateMsg(msg.getQQCode(), "现在设置为：\n"
+                + "扭蛋开关:" + groupPower.isGachaSwitch()
+                + "\n买药小助手开关" + groupPower.isMaiyaoSwitch()
+                + "\n买马开关：" + groupPower.isHorseSwitch());
     }
 
     @Listen(MsgGetTypes.privateMsg)
@@ -302,14 +303,13 @@ public class OtherListener {
     @Filter(value = {"#头像.*"})
     public void avatar(GroupMsg msg, MsgSender sender) {
         String[] split = msg.getMsg().split(" +");
-        String QQ = "";
+        String qq = "";
         if (split.length > 1) {
-            QQ = split[1];
+            qq = split[1];
         } else {
             sender.SENDER.sendGroupMsg(msg.getGroupCode(), "没有要获取头像的QQ号");
         }
-        String AVATAR_API = "http://thirdqq.qlogo.cn/g?b=qq&nk=";
-        String api = AVATAR_API + QQ + "&s=640";
+        String api = AVATAR_API + qq + "&s=640";
         try {
             InputStream imageStream = Request.Get(api).execute().returnResponse().getEntity().getContent();
             File pic = new File(TEMP + System.currentTimeMillis() + ".jpg");
@@ -332,16 +332,29 @@ public class OtherListener {
             String message = msg.getMsg();
             Pattern p = Pattern.compile(regex);
             Matcher m = p.matcher(message);
-            int low = 0, high = 0;
+            int count = 1;
+            int limit = 4;
             while (m.find()) {
-                low = Integer.parseInt(m.group(1).trim());
-                high = Integer.parseInt(m.group(2).trim());
+                count = Math.max(Integer.parseInt(m.group(1).trim()), 1);
+                limit = Math.max(Integer.parseInt(m.group(2).trim()), 4);
             }
-            int i = RandomUtils.nextInt(low, high + 1);
-            sender.SENDER.sendGroupMsg(msg.getGroupCode(), "[CQ:at,qq=" + msg.getQQ() + "]roll出了" + i + "点（" +
-                    low + "到" + high + "）");
+            if (count > 20) {
+                sender.SENDER.sendGroupMsg(msg.getGroupCode(), "你正常点，没那么多骰子给你扔。");
+                return;
+            }
+            StringBuilder sb = new StringBuilder();
+            sb.append("[CQ:at,qq=").append(msg.getQQ()).append("]roll出了");
+            for (int i = 0; i < count; i++) {
+                int singleDice = RandomUtils.nextInt(1, limit + 1);
+                sb.append("[").append(singleDice).append("]");
+                if (i != count - 1) {
+                    sb.append(", ");
+                }
+            }
+            sb.append("点，本次使用了").append(count).append("个").append(limit).append("面骰。");
+            sender.SENDER.sendGroupMsg(msg.getGroupCode(), sb.toString());
         } catch (NumberFormatException e) {
-            sender.SENDER.sendGroupMsg(msg.getGroupCode(), "roll点上下限必须是数字才行哦");
+            sender.SENDER.sendGroupMsg(msg.getGroupCode(), "格式错误");
         }
     }
 }
