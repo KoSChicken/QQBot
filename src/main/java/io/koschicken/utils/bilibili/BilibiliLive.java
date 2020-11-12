@@ -16,7 +16,7 @@ import static org.springframework.util.ResourceUtils.isUrl;
 
 public class BilibiliLive {
     private static final String TEMP = "./temp/bili/Live/";
-    private final String mid;//主播uid
+    private final String mid; // 主播uid
     private int roomStatus;
     private int roundStatus;
     private int liveStatus;
@@ -25,6 +25,7 @@ public class BilibiliLive {
     private File cover;
     private int online;
     private int roomId;
+    private BilibiliUser user;
 
     public BilibiliLive(String mid) throws IOException {
         this.mid = mid;
@@ -63,6 +64,7 @@ public class BilibiliLive {
     }
 
     public void fresh() throws IOException {
+        user = new BilibiliUser(mid);
         String live = getLive(mid);
         JSONObject jsonObject = JSON.parseObject(live);
         JSONObject data = jsonObject.getJSONObject("data");
@@ -139,5 +141,9 @@ public class BilibiliLive {
 
     public int getRoomId() {
         return roomId;
+    }
+
+    public BilibiliUser getUser() {
+        return user;
     }
 }
