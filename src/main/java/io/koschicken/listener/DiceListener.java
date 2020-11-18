@@ -17,6 +17,7 @@ import java.util.*;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
+import static io.koschicken.Constants.CQ_AT;
 import static io.koschicken.listener.PrincessIntercept.On;
 
 @Service
@@ -191,6 +192,90 @@ public class DiceListener {
             }
             return "";
         }
+    }
+
+    @Listen(MsgGetTypes.groupMsg)
+    @Filter(value = {"#roll(.*)[-dD到](.*)"})
+    public void roll(GroupMsg msg, MsgSender sender) {
+        try {
+            String regex = "#roll(.*)[-dD到](.*)";
+            String message = msg.getMsg();
+            Pattern p = Pattern.compile(regex);
+            Matcher m = p.matcher(message);
+            int count = 1;
+            int limit = 4;
+            while (m.find()) {
+                count = Math.max(Integer.parseInt(m.group(1).trim()), 1);
+                limit = Math.max(Integer.parseInt(m.group(2).trim()), 4);
+            }
+            Scores scores = scoresServiceImpl.getById(msg.getQQ());
+            if (count == 10 && limit == 10 && scores.getScore() >= 10) {
+                // 10d10，则进行金币翻倍判断
+                gameRoll10d10(msg, sender, count, limit, scores);
+                return;
+            }
+            if (count > 20) {
+                sender.SENDER.sendGroupMsg(msg.getGroupCode(), "你正常点，没那么多骰子给你扔。");
+                return;
+            }
+            StringBuilder sb = new StringBuilder();
+            sb.append("[CQ:at,qq=").append(msg.getQQ()).append("]roll出了");
+            for (int i = 0; i < count; i++) {
+                int singleDice = RandomUtils.nextInt(1, limit + 1);
+                sb.append("[").append(singleDice).append("]");
+                if (i != count - 1) {
+                    sb.append(", ");
+                }
+            }
+            sb.append("点，本次使用了").append(count).append("个").append(limit).append("面骰。");
+            sender.SENDER.sendGroupMsg(msg.getGroupCode(), sb.toString());
+        } catch (NumberFormatException e) {
+            sender.SENDER.sendGroupMsg(msg.getGroupCode(), "格式错误");
+        }
+    }
+
+    private void gameRoll10d10(GroupMsg msg, MsgSender sender, int count, int limit, Scores scores) {
+        int[] gameRoll = gameRoll();
+        StringBuilder sb = new StringBuilder();
+        sb.append(CQ_AT).append(msg.getQQ()).append("]roll出了");
+        for(int i = 0; i < gameRoll.length; i++) {
+            sb.append("[").append(gameRoll[i]).append("]");
+            if (i != count - 1) {
+                sb.append(", ");
+            }
+        }
+        sb.append("点，本次使用了").append(count).append("个").append(limit).append("面骰。")
+                .append("10d10将会扣除你10%的金币，如果roll出7个大于7的数字，余额将翻倍。");
+        sender.SENDER.sendGroupMsg(msg.getGroupCode(), sb.toString());
+        boolean check = check(gameRoll);
+        if (check) {
+            sender.SENDER.sendGroupMsg(msg.getGroupCode(), CQ_AT + msg.getQQ() + "] 恭喜你，达成了7个大于7的条件，财富已翻倍。");
+            int max = (Integer.MAX_VALUE - 1) / 2;
+            int newScores = scores.getScore() >= max ? Integer.MAX_VALUE : scores.getScore() * 2;
+            scores.setScore(newScores);
+        } else {
+            int newScores = scores.getScore() - scores.getScore() / 10;
+            scores.setScore(newScores);
+        }
+        scoresServiceImpl.updateById(scores);
+    }
+
+    private int[] gameRoll() {
+        int[] result = new int[10];
+        for (int i = 0; i < 10; i++) {
+            result[i] = RandomUtils.nextInt(1, 11);
+        }
+        return result;
+    }
+
+    private boolean check(int[] arr) {
+        int valid = 0;
+        for (int j : arr) {
+            if (j >= 9) {
+                valid++;
+            }
+        }
+        return valid >= 9;
     }
 
     public class Dice extends Thread {

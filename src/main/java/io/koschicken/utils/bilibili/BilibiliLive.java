@@ -84,14 +84,14 @@ public class BilibiliLive {
             boolean isUrl = isUrl(coverFromJson);
             if (isUrl) {
                 String fileName = getImageName(coverFromJson);
-                if (this.cover == null || this.cover.getName().equals(fileName)) {
+                // if (this.cover == null || this.cover.getName().equals(fileName)) {
                     this.cover = new File(TEMP + fileName);
                     FileUtils.forceMkdir(this.cover.getParentFile());
                     FileUtils.deleteQuietly(this.cover);
                     FileUtils.touch(this.cover);
                     URL imageUrl = new URL(coverFromJson);
                     FileUtils.copyURLToFile(imageUrl, this.cover);
-                }
+                // }
             }
         }
     }

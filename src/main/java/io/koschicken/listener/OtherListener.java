@@ -25,8 +25,6 @@ import java.io.File;
 import java.io.IOException;
 import java.io.InputStream;
 import java.nio.file.Files;
-import java.util.regex.Matcher;
-import java.util.regex.Pattern;
 
 import static io.koschicken.Constants.*;
 import static io.koschicken.listener.PrincessIntercept.On;
@@ -321,40 +319,6 @@ public class OtherListener {
             Files.delete(pic.toPath());
         } catch (Exception e) {
             e.printStackTrace();
-        }
-    }
-
-    @Listen(MsgGetTypes.groupMsg)
-    @Filter(value = {"#roll(.*)[-dD到](.*)"})
-    public void roll(GroupMsg msg, MsgSender sender) {
-        try {
-            String regex = "#roll(.*)[-dD到](.*)";
-            String message = msg.getMsg();
-            Pattern p = Pattern.compile(regex);
-            Matcher m = p.matcher(message);
-            int count = 1;
-            int limit = 4;
-            while (m.find()) {
-                count = Math.max(Integer.parseInt(m.group(1).trim()), 1);
-                limit = Math.max(Integer.parseInt(m.group(2).trim()), 4);
-            }
-            if (count > 20) {
-                sender.SENDER.sendGroupMsg(msg.getGroupCode(), "你正常点，没那么多骰子给你扔。");
-                return;
-            }
-            StringBuilder sb = new StringBuilder();
-            sb.append("[CQ:at,qq=").append(msg.getQQ()).append("]roll出了");
-            for (int i = 0; i < count; i++) {
-                int singleDice = RandomUtils.nextInt(1, limit + 1);
-                sb.append("[").append(singleDice).append("]");
-                if (i != count - 1) {
-                    sb.append(", ");
-                }
-            }
-            sb.append("点，本次使用了").append(count).append("个").append(limit).append("面骰。");
-            sender.SENDER.sendGroupMsg(msg.getGroupCode(), sb.toString());
-        } catch (NumberFormatException e) {
-            sender.SENDER.sendGroupMsg(msg.getGroupCode(), "格式错误");
         }
     }
 }

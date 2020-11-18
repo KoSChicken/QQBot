@@ -57,25 +57,21 @@ public class BilibiliListener {
         String videoCode = msg.getMsg().substring(3).trim();
         String av = "";
         String bv = "";
-        try {
-            BilibiliVideo bilibiliVideo = null;
-            if (videoCode.startsWith("videoCode") || videoCode.startsWith("AV")) {
-                bilibiliVideo = new BilibiliVideo(videoCode.substring(2), false);
-                av = videoCode;
-                bv = bilibiliVideo.getBv();
-            } else if (videoCode.startsWith("bv") || videoCode.startsWith("BV")) {
-                bilibiliVideo = new BilibiliVideo(videoCode.substring(2), true);
-                av = bilibiliVideo.getAv();
-                bv = videoCode;
-            }
-            if (bilibiliVideo != null) {
-                String image = KQCodeUtils.getInstance()
-                        .toCq(CQ_TYPE, CQ_PARAMS + bilibiliVideo.getPic().getAbsolutePath());
-                sender.SENDER.sendGroupMsg(msg.getGroupCode(),
-                        "av号：" + av + "\nbv号：" + bv + "\n视频标题:" + bilibiliVideo.getTitle() + "\n" + image);
-            }
-        } catch (IOException e) {
-            e.printStackTrace();
+        BilibiliVideo bilibiliVideo = null;
+        if (videoCode.startsWith("videoCode") || videoCode.startsWith("AV")) {
+            bilibiliVideo = new BilibiliVideo(videoCode.substring(2), false);
+            av = videoCode;
+            bv = bilibiliVideo.getBv();
+        } else if (videoCode.startsWith("bv") || videoCode.startsWith("BV")) {
+            bilibiliVideo = new BilibiliVideo(videoCode.substring(2), true);
+            av = bilibiliVideo.getAv();
+            bv = videoCode;
+        }
+        if (bilibiliVideo != null) {
+            String image = KQCodeUtils.getInstance()
+                    .toCq(CQ_TYPE, CQ_PARAMS + bilibiliVideo.getPic().getAbsolutePath());
+            sender.SENDER.sendGroupMsg(msg.getGroupCode(),
+                    "av号：" + av + "\nbv号：" + bv + "\n视频标题:" + bilibiliVideo.getTitle() + "\n" + image);
         }
     }
 
@@ -183,7 +179,7 @@ public class BilibiliListener {
     static class AddLive extends Thread {
         private final String mid;
 
-        public AddLive(String mid) {
+        AddLive(String mid) {
             this.mid = mid;
         }
 

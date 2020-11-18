@@ -1,15 +1,21 @@
 package io.koschicken.utils;
 
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+
 import java.io.*;
 import java.net.HttpURLConnection;
 import java.net.URL;
 import java.net.URLEncoder;
 import java.nio.charset.StandardCharsets;
+import java.util.Arrays;
 import java.util.Map;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
 public final class ApiConnect {
+
+    private static final Logger LOGGER = LoggerFactory.getLogger(ApiConnect.class);
 
     private ApiConnect() {
     }
@@ -48,7 +54,8 @@ public final class ApiConnect {
             //断开连接
             httpUrlConn.disconnect();
         } catch (Exception e) {
-            e.printStackTrace();
+            LOGGER.error(e.getMessage());
+            LOGGER.debug(Arrays.toString(e.getStackTrace()));
         }
         //返回字符串
         return buffer.toString();
@@ -86,7 +93,7 @@ public final class ApiConnect {
             //断开连接
             httpUrlConn.disconnect();
         } catch (Exception e) {
-            e.printStackTrace();
+            LOGGER.error(e.getMessage());
         }
         //返回字符串
         return buffer.toString();
@@ -99,7 +106,8 @@ public final class ApiConnect {
             try {
                 sb.append(i.getKey()).append("=").append(URLEncoder.encode(i.getValue() + "", "UTF-8")).append("&");
             } catch (UnsupportedEncodingException e) {
-                e.printStackTrace();
+                LOGGER.error(e.getMessage());
+                LOGGER.debug(Arrays.toString(e.getStackTrace()));
             }
         }
         return sb.toString();
@@ -125,7 +133,8 @@ public final class ApiConnect {
                 }
             }
         } catch (IOException e) {
-            e.printStackTrace();
+            LOGGER.error(e.getMessage());
+            LOGGER.debug(Arrays.toString(e.getStackTrace()));
         }
 
         Pattern p = Pattern.compile("<dd class=\"fz24\">(.*?)</dd>");

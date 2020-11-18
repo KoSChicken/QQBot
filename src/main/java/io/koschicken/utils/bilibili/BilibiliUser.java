@@ -20,9 +20,12 @@ public class BilibiliUser {
     private File face;
     private String sign;
 
-    public BilibiliUser(String mid) throws IOException {
+    public BilibiliUser(String mid) {
         this.mid = mid;
-        fresh();
+        try {
+            fresh();
+        } catch (Exception ignore) {
+        }
     }
 
     public static String get(String getUrl) {

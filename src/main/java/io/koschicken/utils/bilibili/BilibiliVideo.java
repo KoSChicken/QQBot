@@ -18,13 +18,16 @@ public class BilibiliVideo {
     private File pic;
     private String title;
 
-    public BilibiliVideo(String avbv, boolean isbv) throws IOException {
+    public BilibiliVideo(String avbv, boolean isbv) {
         if (isbv) {
             this.bv = avbv;
         } else {
             this.bv = BvAndAv.v2b(avbv);
         }
-        fresh();
+        try {
+            fresh();
+        } catch (Exception ignore) {
+        }
     }
 
     /**
