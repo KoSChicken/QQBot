@@ -43,8 +43,8 @@ public class MiraiSpringBootBeanFactoryApp implements MiraiApp {
         }
         File file = new File(configDir + "/qq.txt");
         Properties pro = new Properties();
-        String profile;
-        String pass;
+        String profile = null;
+        String pass = null;
         if (!file.exists()) {
             Scanner scanner = new Scanner(System.in);
             LOGGER.info("未检测到账户文件，请输入所要登陆的qq账号");
@@ -61,36 +61,25 @@ public class MiraiSpringBootBeanFactoryApp implements MiraiApp {
                 e1.printStackTrace();
             }
         } else {
-            try (InputStreamReader in = new InputStreamReader(new FileInputStream(file), StandardCharsets.UTF_8);
-                 OutputStreamWriter op = new OutputStreamWriter(new FileOutputStream(file), StandardCharsets.UTF_8)) {
+            try (InputStreamReader in = new InputStreamReader(new FileInputStream(file), StandardCharsets.UTF_8)) {
                 pro.load(in);
                 profile = pro.getProperty("qq账号");
                 pass = pro.getProperty("密码");
                 if (profile == null || pass == null) {
-                    LOGGER.info("账户文件读取失败，请输入所要登陆的qq账号");
-                    Scanner scanner = new Scanner(System.in);
-                    LOGGER.info("qq号:  ");
-                    profile = scanner.next();
-                    LOGGER.info("密码:  ");
-                    pass = scanner.next();
-                    pro.setProperty("密码", pass);
-                    pro.setProperty("qq账号", profile);
-                    pro.store(op, "the PcrTool configs");
+                    try (OutputStreamWriter op = new OutputStreamWriter(new FileOutputStream(file), StandardCharsets.UTF_8)) {
+                        LOGGER.info("账户文件读取失败，请输入所要登陆的qq账号");
+                        Scanner scanner = new Scanner(System.in);
+                        LOGGER.info("qq号:  ");
+                        profile = scanner.next();
+                        LOGGER.info("密码:  ");
+                        pass = scanner.next();
+                        pro.setProperty("密码", pass);
+                        pro.setProperty("qq账号", profile);
+                        pro.store(op, "the PcrTool configs");
+                    }
                 }
             } catch (IOException e) {
-                LOGGER.info("账户文件读取失败，请输入所要登陆的qq账号");
-                Scanner scanner = new Scanner(System.in);
-                LOGGER.info("qq号:  ");
-                profile = scanner.next();
-                LOGGER.info("密码:  ");
-                pass = scanner.next();
-                pro.setProperty("密码", pass);
-                pro.setProperty("qq账号", profile);
-                try (OutputStreamWriter op = new OutputStreamWriter(new FileOutputStream(file), StandardCharsets.UTF_8)) {
-                    pro.store(op, "the PcrTool configs");
-                } catch (IOException e1) {
-                    e1.printStackTrace();
-                }
+                e.printStackTrace();
             }
         }
         configuration.registerBot(profile, pass);
@@ -111,7 +100,7 @@ public class MiraiSpringBootBeanFactoryApp implements MiraiApp {
     }
 
     private String createConfigDir() throws IOException {
-        File file = new File("./config");
+        File file = new File("config");
         if (!file.exists()) {
             FileUtils.forceMkdir(file);
         }

@@ -30,6 +30,7 @@ public class InitDatabase {
                     statement.executeUpdate("create table 'version'('version' integer)");
                     statement.executeUpdate("insert into version values (" + NEW_VERSION + ")");
                     statement.executeUpdate("create table pic(pid integer primary key, last_send_time datetime)");
+                    statement.executeUpdate("create table lucky(id integer primary key, qq integer, date datetime, coin integer)");
                     break;
                 case 5:
                     statement.executeUpdate("alter table Scores add column live1 integer;");

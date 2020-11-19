@@ -14,7 +14,9 @@ import com.forte.qqrobot.bot.BotSender;
 import com.forte.qqrobot.sender.MsgSender;
 import io.koschicken.bean.GroupPower;
 import io.koschicken.bean.Horse;
+import io.koschicken.database.bean.Lucky;
 import io.koschicken.database.bean.Scores;
+import io.koschicken.database.service.LuckyService;
 import io.koschicken.database.service.ScoresService;
 import org.apache.commons.lang3.RandomUtils;
 import org.slf4j.Logger;
@@ -39,6 +41,8 @@ public class HorseRunListener {
     private static final Logger LOGGER = LoggerFactory.getLogger(HorseRunListener.class);
     @Autowired
     ScoresService scoresService;
+    @Autowired
+    LuckyService luckyService;
     /**
      * bot管理器
      */
@@ -115,18 +119,7 @@ public class HorseRunListener {
     @Filter(value = {"#给xcw上供", "上供", "#上供", "签到", "#签到", "簽到", "#簽到"}, keywordMatchType = KeywordMatchType.TRIM_EQUALS)
     public void sign(GroupMsg msg, MsgSender sender) {
         int rank = RandomUtils.nextInt(1, 101);
-        int score;
-        if (rank >= 99) {
-            score = RandomUtils.nextInt(25000, 50001);
-        } else if (rank >= 95) {
-            score = RandomUtils.nextInt(10000, 25001);
-        } else if (rank >= 50) {
-            score = RandomUtils.nextInt(5000, 10001);
-        } else if (rank >= 15) {
-            score = RandomUtils.nextInt(2500, 5001);
-        } else {
-            score = rank;
-        }
+        int score = getScore(rank);
         if (On.get(msg.getGroupCode()).isHorseSwitch()) {
             Scores scores = scoresService.getById(msg.getCodeNumber());
             if (scores != null) {
@@ -146,6 +139,7 @@ public class HorseRunListener {
                 if (score > 15) {
                     sender.SENDER.sendGroupMsg(msg.getGroupCode(), CQ_AT + msg.getQQ() + "] 签到成功，币+" + score + "，现在币:" + scores.getScore());
                 } else {
+                    luckyService.save(new Lucky(msg.getCodeNumber(), new Date(), score));
                     sender.SENDER.sendGroupMsg(msg.getGroupCode(), CQ_AT + msg.getQQ() + "] 天选之人！币+" + score + "，现在币:" + scores.getScore());
                 }
             } else {
@@ -158,6 +152,37 @@ public class HorseRunListener {
                 sender.SENDER.sendGroupMsg(msg.getGroupCode(), CQ_AT + msg.getQQ() + "] 签到成功，币+" + score);
             }
         }
+    }
+
+    private int getScore(int rank) {
+        int score;
+        if (rank >= 99) {
+            score = RandomUtils.nextInt(25000, 50001);
+        } else if (rank >= 95) {
+            score = RandomUtils.nextInt(10000, 25001);
+        } else if (rank >= 50) {
+            score = RandomUtils.nextInt(5000, 10001);
+        } else if (rank >= 15) {
+            score = RandomUtils.nextInt(2500, 5001);
+        } else {
+            score = rank;
+        }
+        return score;
+    }
+
+    @Listen(MsgGetTypes.groupMsg)
+    @Filter(value = "#天选")
+    public void luckyList(GroupMsg msg, MsgSender sender) {
+        String groupCode = msg.getGroupCode();
+        StringBuilder sb = new StringBuilder();
+        sb.append("天选之人榜\n");
+        List<Lucky> list = luckyService.listByGroupCode(groupCode);
+        for (int i = 0; i < list.size(); i++) {
+            Lucky lucky = list.get(i);
+            GroupMemberInfo info = sender.GETTER.getGroupMemberInfo(msg.getGroupCode(), String.valueOf(lucky.getQq()));
+            sb.append(i + 1).append(". ").append(info.getCard()).append(" 天选次数：").append(lucky.getCount()).append("\n");
+        }
+        sender.SENDER.sendGroupMsg(msg.getGroupCode(), sb.toString().trim());
     }
 
     @Listen(MsgGetTypes.groupMsg)
