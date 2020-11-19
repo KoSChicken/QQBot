@@ -33,7 +33,7 @@ public class BilibiliLive {
 
     @Scheduled(cron = "0/30 * * * * ? ")
     public void execute() {
-        LOGGER.info("直播提醒正在运行......");
+//        LOGGER.info("直播提醒正在运行......");
         Set<String> strings = liveHashMap.keySet();
         HashMap<String, io.koschicken.utils.bilibili.BilibiliLive> live = new HashMap<>();
         io.koschicken.utils.bilibili.BilibiliLive cache;
@@ -44,7 +44,7 @@ public class BilibiliLive {
             try {
                 cache.fresh();
             } catch (IOException e) {
-                e.printStackTrace();
+                LOGGER.error(e.getMessage(), e);
             }
             //刷新前没开播刷新后开播了
             if (i == 0 && cache.getLiveStatus() == 1) {
@@ -56,9 +56,9 @@ public class BilibiliLive {
         StringBuilder stringBuilder = new StringBuilder();
         io.koschicken.utils.bilibili.BilibiliLive live1, live2, live3;
         for (Scores people : livePeople) {
-            if (people.getLive1() != 0 || people.getLive2() != 0 || people.getLive3() != 0) {
-                LOGGER.info("people = {}", people);
-            }
+//            if (people.getLive1() != 0 || people.getLive2() != 0 || people.getLive3() != 0) {
+//                LOGGER.info("people = {}", people);
+//            }
             stringBuilder.delete(0, stringBuilder.length());
             Set<String> groupSet = new HashSet<>();
             String up = "\nUP：";
