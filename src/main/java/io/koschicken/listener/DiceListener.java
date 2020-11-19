@@ -254,7 +254,7 @@ public class DiceListener {
             int newScores = scores.getScore() >= max ? Integer.MAX_VALUE : scores.getScore() * 2;
             scores.setScore(newScores);
         } else {
-            int newScores = scores.getScore() - scores.getScore() / 10;
+            int newScores = scores.getScore() - scores.getScore() / 50;
             scores.setScore(newScores);
         }
         scoresServiceImpl.updateById(scores);
@@ -271,11 +271,11 @@ public class DiceListener {
     private boolean check(int[] arr) {
         int valid = 0;
         for (int j : arr) {
-            if (j >= 9) {
+            if (j >= 7) {
                 valid++;
             }
         }
-        return valid >= 9;
+        return valid >= 7;
     }
 
     public class Dice extends Thread {
