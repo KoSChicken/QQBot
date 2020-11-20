@@ -139,9 +139,10 @@ public class HorseRunListener {
                 if (score > 15) {
                     sender.SENDER.sendGroupMsg(msg.getGroupCode(), CQ_AT + msg.getQQ() + "] 签到成功，币+" + score + "，现在币:" + scores.getScore());
                 } else {
-                    luckyService.save(new Lucky(msg.getCodeNumber(), new Date(), score));
                     sender.SENDER.sendGroupMsg(msg.getGroupCode(), CQ_AT + msg.getQQ() + "] 天选之人！币+" + score + "，现在币:" + scores.getScore());
                 }
+                Lucky entity = new Lucky(msg.getCodeNumber(), new Date(), score);
+                luckyService.save(entity);
             } else {
                 scores = new Scores();
                 scores.setQQ(msg.getCodeNumber());

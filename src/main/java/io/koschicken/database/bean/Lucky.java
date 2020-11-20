@@ -1,5 +1,6 @@
 package io.koschicken.database.bean;
 
+import com.baomidou.mybatisplus.annotation.IdType;
 import com.baomidou.mybatisplus.annotation.TableId;
 import com.baomidou.mybatisplus.annotation.TableName;
 
@@ -11,7 +12,7 @@ public class Lucky implements Serializable {
 
     private static final long serialVersionUID = 3146650876135600178L;
 
-    @TableId(value = "id")
+    @TableId(value = "id", type = IdType.AUTO)
     private Integer id;
 
     private Long qq;
