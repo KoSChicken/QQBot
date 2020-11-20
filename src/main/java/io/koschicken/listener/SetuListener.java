@@ -360,10 +360,11 @@ public class SetuListener {
                     coin.setScore(coin.getScore() - PRINCESS_CONFIG.getSetuCoin() * sendCount);
                     scoresService.updateById(coin); // 按照实际发送的张数来扣除叫车者的币
                 } else {
+                    String msg = "没找到这样的色图，要不你发一张？";
                     if (StringUtils.isEmpty(groupCode)) {
-                        sender.SENDER.sendPrivateMsg(privateQQ, pixiv.getMsg());
+                        sender.SENDER.sendPrivateMsg(privateQQ, msg);
                     } else {
-                        sender.SENDER.sendGroupMsg(groupCode, pixiv.getMsg());
+                        sender.SENDER.sendGroupMsg(groupCode, msg);
                     }
                 }
             } catch (IOException e) {
