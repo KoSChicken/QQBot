@@ -30,6 +30,10 @@ public class RepeaterListener {
     }
 
     private void stackMsg(GroupMsg msg, MsgSender sender, Deque<String> stack, String currentMsg) {
+        boolean containsSharp = currentMsg.contains("#");
+        if (containsSharp) {
+            return;
+        }
         if (stack.isEmpty()) { // 如果栈是空的，入栈
             stack.push(currentMsg);
         } else {

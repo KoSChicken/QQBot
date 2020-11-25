@@ -236,7 +236,7 @@ public class DiceListener {
 
     private void gameRoll10d10(GroupMsg msg, MsgSender sender, int count, int limit, Scores scores) {
         int[] gameRoll = gameRoll();
-        StringBuilder sb = new StringBuilder();
+        /*StringBuilder sb = new StringBuilder();
         sb.append(CQ_AT).append(msg.getQQ()).append("]roll出了");
         for(int i = 0; i < gameRoll.length; i++) {
             sb.append("[").append(gameRoll[i]).append("]");
@@ -246,7 +246,7 @@ public class DiceListener {
         }
         sb.append("点，本次使用了").append(count).append("个").append(limit).append("面骰。")
                 .append("10d10将会扣除你10%的金币，如果roll出7个大于7的数字，余额将翻倍。");
-        sender.SENDER.sendGroupMsg(msg.getGroupCode(), sb.toString());
+        sender.SENDER.sendGroupMsg(msg.getGroupCode(), sb.toString());*/
         boolean check = check(gameRoll);
         if (check) {
             sender.SENDER.sendGroupMsg(msg.getGroupCode(), CQ_AT + msg.getQQ() + "] 恭喜你，达成了7个大于7的条件，财富已翻倍。");
@@ -254,6 +254,7 @@ public class DiceListener {
             int newScores = scores.getScore() >= max ? Integer.MAX_VALUE : scores.getScore() * 2;
             scores.setScore(newScores);
         } else {
+            sender.SENDER.sendGroupMsg(msg.getGroupCode(), CQ_AT + msg.getQQ() + "] 没中。");
             int newScores = scores.getScore() - scores.getScore() / 50;
             scores.setScore(newScores);
         }
