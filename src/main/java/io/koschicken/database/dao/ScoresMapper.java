@@ -38,8 +38,8 @@ public interface ScoresMapper extends BaseMapper<Scores> {
     @Update("update Scores set #{size} = #{mid} where QQ = ${qq}")
     int setLive(@Param("qq") long qq, @Param("size") String size, @Param("mid") long mid);
 
-    @Update("update Scores set score = score + 10000")
-    void allRich();
+    @Update("update Scores set score = score + ${score}")
+    void allRich(int score);
 
     @Update("update Scores set score = score / 2 where QQ = ${qq}")
     void financialCrisis(@Param("qq") long qq);

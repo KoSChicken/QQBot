@@ -24,7 +24,7 @@ public interface ScoresService extends IService<Scores> {
 
     int updateLiveOn(long qq, boolean on);
 
-    void allRich();
+    void allRich(int score);
 
     void financialCrisis(long qq);
 

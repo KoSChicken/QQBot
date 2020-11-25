@@ -79,8 +79,8 @@ public class ScoresServiceImpl extends ServiceImpl<ScoresMapper, Scores> impleme
     }
 
     @Override
-    public void allRich() {
-        scoresMapper.allRich();
+    public void allRich(int score) {
+        scoresMapper.allRich(score);
     }
 
     @Override

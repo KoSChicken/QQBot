@@ -78,7 +78,7 @@ public class HorseRunListener {
     @Filter(value = "#天降福利")
     public void allRich(GroupMsg msg, MsgSender sender) {
         if (PRINCESS_CONFIG.getMasterQQ().equals(msg.getQQ())) {
-            scoresService.allRich();
+            scoresService.allRich(10000);
             sender.SENDER.sendGroupMsg(msg.getGroupCode(), "所有人的钱包都增加了一万块钱");
         }
     }
