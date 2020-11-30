@@ -252,12 +252,12 @@ public class DiceListener {
         sender.SENDER.sendGroupMsg(msg.getGroupCode(), sb.toString());*/
         boolean check = check(gameRoll);
         if (check) {
-            sender.SENDER.sendGroupMsg(msg.getGroupCode(), CQ_AT + msg.getQQ() + "] 恭喜你，达成了7个大于7的条件，财富已翻倍。");
             int max = (Integer.MAX_VALUE - 1) / 2;
             int newScores = scores.getScore() >= max ? Integer.MAX_VALUE : scores.getScore() * 2;
             scores.setScore(newScores);
+            sender.SENDER.sendGroupMsg(msg.getGroupCode(), CQ_AT + msg.getQQ() + "] 中了，余额：" + newScores);
         } else {
-            sender.SENDER.sendGroupMsg(msg.getGroupCode(), CQ_AT + msg.getQQ() + "] 没中。");
+            sender.SENDER.sendGroupMsg(msg.getGroupCode(), CQ_AT + msg.getQQ() + "] 没中");
             int newScores = scores.getScore() - scores.getScore() / 25;
             scores.setScore(newScores);
         }
