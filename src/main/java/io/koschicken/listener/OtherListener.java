@@ -245,7 +245,18 @@ public class OtherListener {
     public void refreshSign(PrivateMsg msg, MsgSender sender) {
         if (msg.getQQCode().equals(PRINCESS_CONFIG.getMasterQQ())) {
             scoresServiceImpl.clearSign();
-            sender.SENDER.sendPrivateMsg(msg.getQQCode(), "已刷新全部签到");
+            sender.SENDER.sendPrivateMsg(msg.getQQCode(), "已刷新");
+        } else {
+            sender.SENDER.sendPrivateMsg(msg.getQQCode(), "权限不足");
+        }
+    }
+
+    @Listen(MsgGetTypes.privateMsg)
+    @Filter(value = {"刷新roll"}, keywordMatchType = KeywordMatchType.TRIM_EQUALS)
+    public void refreshRoll(PrivateMsg msg, MsgSender sender) {
+        if (msg.getQQCode().equals(PRINCESS_CONFIG.getMasterQQ())) {
+            scoresServiceImpl.clearRoll();
+            sender.SENDER.sendPrivateMsg(msg.getQQCode(), "已刷新");
         } else {
             sender.SENDER.sendPrivateMsg(msg.getQQCode(), "权限不足");
         }

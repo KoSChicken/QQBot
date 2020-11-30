@@ -211,12 +211,12 @@ public class DiceListener {
                 count = Math.max(Integer.parseInt(m.group(1).trim()), 1);
                 limit = Math.max(Integer.parseInt(m.group(2).trim()), 4);
             }
-            Scores scores = scoresServiceImpl.getById(msg.getQQ());
-            if (count == 10 && limit == 10 && scores.getScore() >= 10) {
-                // 10d10，则进行金币翻倍判断
-                gameRoll10d10(msg, sender, count, limit, scores);
-                return;
-            }
+//            Scores scores = scoresServiceImpl.getById(msg.getQQ());
+//            if (count == 10 && limit == 10 && scores.getScore() >= 10) {
+//                // 10d10，则进行金币翻倍判断
+//                gameRoll10d10(msg, sender, count, limit, scores);
+//                return;
+//            }
             if (count > 20) {
                 sender.SENDER.sendGroupMsg(msg.getGroupCode(), "你正常点，没那么多骰子给你扔。");
                 return;
@@ -285,14 +285,20 @@ public class DiceListener {
     @Listen(MsgGetTypes.groupMsg)
     @Filter(value = {"#roll10d10w"})
     public void roll10D10W(GroupMsg msg, MsgSender sender) {
-        sender.SENDER.sendGroupMsg(msg.getGroupCode(), "10d10w已被sbbot禁用");
-//        try {
-//            // 10d10，则进行金币翻倍判断
-//            Scores scores = scoresServiceImpl.getById(msg.getQQ());
-//            gameRoll10d10W(msg, sender, scores);
-//        } catch (NumberFormatException e) {
-//            sender.SENDER.sendGroupMsg(msg.getGroupCode(), "格式错误");
-//        }
+        // sender.SENDER.sendGroupMsg(msg.getGroupCode(), "10d10w已被sbbot禁用");
+        try {
+            // 10d10，则进行金币翻倍判断
+            Scores scores = scoresServiceImpl.getById(msg.getQQ());
+            if (scores.getRoll() > 0) {
+                scores.setRoll(scores.getRoll() - 1);
+                scoresServiceImpl.updateById(scores);
+                gameRoll10d10W(msg, sender, scores);
+            } else {
+                sender.SENDER.sendGroupMsg(msg.getGroupCode(), "次数已用尽");
+            }
+        } catch (NumberFormatException e) {
+            sender.SENDER.sendGroupMsg(msg.getGroupCode(), "格式错误");
+        }
     }
 
     private void gameRoll10d10W(GroupMsg msg, MsgSender sender, Scores scores) {
@@ -309,7 +315,7 @@ public class DiceListener {
             scoresServiceImpl.updateById(scores);
             check = check(gameRoll());
             if (check) {
-                sender.SENDER.sendGroupMsg(msg.getGroupCode(), CQ_AT + msg.getQQ() + "] 恭喜你，roll了" + i + "次，中了，现在余额：" + scores.getScore());
+                sender.SENDER.sendGroupMsg(msg.getGroupCode(), CQ_AT + msg.getQQ() + "] 恭喜你，roll了" + i + "次，中了，余额：" + scores.getScore());
                 int max = (Integer.MAX_VALUE - 1) / 2;
                 newScores = scores.getScore() >= max ? Integer.MAX_VALUE : scores.getScore() * 2;
                 scores.setScore(newScores);

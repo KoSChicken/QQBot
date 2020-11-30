@@ -21,6 +21,11 @@ public class ScoresServiceImpl extends ServiceImpl<ScoresMapper, Scores> impleme
     }
 
     @Override
+    public void clearRoll() {
+        scoresMapper.clearRoll();
+    }
+
+    @Override
     public Boolean selectSign(long qq) {
         return scoresMapper.selectSign(qq);
     }

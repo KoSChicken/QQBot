@@ -23,6 +23,7 @@ public class ClearSign {
     @Scheduled(cron = "0 0 0 * * ?")
     public void execute() throws IOException {
         scoresServiceImpl.clearSign(); // 重置签到
+        scoresServiceImpl.clearRoll(); // 重置roll
         clearTemp();
     }
 

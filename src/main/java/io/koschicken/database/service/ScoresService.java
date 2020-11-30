@@ -9,6 +9,8 @@ public interface ScoresService extends IService<Scores> {
 
     void clearSign();
 
+    void clearRoll();
+
     Boolean selectSign(long qq);
 
     void sign(long qq);

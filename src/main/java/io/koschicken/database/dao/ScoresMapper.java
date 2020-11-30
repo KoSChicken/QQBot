@@ -17,6 +17,9 @@ public interface ScoresMapper extends BaseMapper<Scores> {
     @Update("update Scores set iSign = false ")
     void changeTeamSum();
 
+    @Update("update Scores set roll = 3 ")
+    void clearRoll();
+
     @Select("select iSign from Scores where QQ = ${qq}")
     Boolean selectSign(@Param("qq") long qq);
 
