@@ -315,11 +315,11 @@ public class DiceListener {
             scoresServiceImpl.updateById(scores);
             check = check(gameRoll());
             if (check) {
-                sender.SENDER.sendGroupMsg(msg.getGroupCode(), CQ_AT + msg.getQQ() + "] 恭喜你，roll了" + i + "次，中了，余额：" + scores.getScore());
                 int max = (Integer.MAX_VALUE - 1) / 2;
                 newScores = scores.getScore() >= max ? Integer.MAX_VALUE : scores.getScore() * 2;
                 scores.setScore(newScores);
                 scoresServiceImpl.updateById(scores);
+                sender.SENDER.sendGroupMsg(msg.getGroupCode(), CQ_AT + msg.getQQ() + "] 恭喜你，roll了" + i + "次，中了，余额：" + scores.getScore());
                 break;
             }
         }
