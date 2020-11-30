@@ -1,7 +1,6 @@
 package io.koschicken.service;
 
 import com.forte.qqrobot.bot.BotManager;
-import io.koschicken.database.service.impl.ScoresServiceImpl;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -16,13 +15,8 @@ public class SpringShutDownHook {
     @Autowired
     BotManager botManager;
 
-    @Autowired
-    ScoresServiceImpl scoresService;
-
     public void destroy() {
         String now = new SimpleDateFormat("yyyy-MM-dd hh:mm:ss").format(new Date());
         LOGGER.info("{}     机器人关闭", now);
-        scoresService.allRich(50000);
-        LOGGER.info("{}     停机补偿已发放", now);
     }
 }
