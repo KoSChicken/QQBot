@@ -302,13 +302,13 @@ public class DiceListener {
     }
 
     private void gameRoll10d10W(GroupMsg msg, MsgSender sender, Scores scores) {
-        int i = 1;
+        int i = 0;
         boolean check = false;
-        if (scores.getScore() < 10) {
+        if (scores.getScore() < 25) {
             sender.SENDER.sendGroupMsg(msg.getGroupCode(), CQ_AT + msg.getQQ() + "] 余额不足。");
             return;
         }
-        while(!check && scores.getScore() >= 10) {
+        while(!check && scores.getScore() >= 25) {
             i++;
             int newScores = scores.getScore() - scores.getScore() / 25;
             scores.setScore(newScores);
