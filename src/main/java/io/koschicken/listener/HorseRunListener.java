@@ -178,12 +178,17 @@ public class HorseRunListener {
         StringBuilder sb = new StringBuilder();
         sb.append("天选之人榜\n");
         List<Lucky> list = luckyService.listByGroupCode(groupCode);
-        for (int i = 0; i < list.size(); i++) {
+        for (int i = 0; i < 10; i++) {
             Lucky lucky = list.get(i);
             GroupMemberInfo info = sender.GETTER.getGroupMemberInfo(msg.getGroupCode(), String.valueOf(lucky.getQq()));
-            sb.append(i + 1).append(". ").append(info.getCard()).append(" 天选次数：").append(lucky.getCount()).append("\n");
+            sb.append(i + 1).append(". ").append(dealCard(info.getCard())).append(" 天选次数：").append(lucky.getCount()).append("\n");
         }
+        sb.append("等").append(list.size()).append("位群友");
         sender.SENDER.sendGroupMsg(msg.getGroupCode(), sb.toString().trim());
+    }
+
+    private String dealCard(String card) {
+        return card.replace("怪物猎人辱华", "屏蔽字");
     }
 
     @Listen(MsgGetTypes.groupMsg)
@@ -256,7 +261,7 @@ public class HorseRunListener {
     }
 
     @Listen(value = {MsgGetTypes.groupMsg, MsgGetTypes.privateMsg})
-    @Filter(value = {"我有多少钱鸭老婆", "老婆我有多少钱", "我有多少钱", "我有多少钱老婆", "我还有多少钱", "余额"},
+    @Filter(value = {"我有多少钱", "余额"},
             keywordMatchType = KeywordMatchType.TRIM_EQUALS)
     public void myCoin(MsgGet msg, MsgSender sender) {
         Scores scores;
@@ -266,7 +271,7 @@ public class HorseRunListener {
             groupMsg = (GroupMsg) msg;
             scores = scoresService.getById(groupMsg.getCodeNumber());
             if (scores != null) {
-                String isSign = Boolean.TRUE.equals(scores.getiSign()) ? "" : "，还没有签到哦";
+                String isSign = Boolean.TRUE.equals(scores.getiSign()) ? "" : "，还没有签到";
                 if (scores.getScore() > 0) {
                     sender.SENDER.sendGroupMsg(groupMsg.getGroupCode(), CQ_AT + groupMsg.getQQ() + "] 有"
                             + scores.getScore() + "块钱" + isSign);
@@ -275,7 +280,7 @@ public class HorseRunListener {
                 }
             } else {
                 sender.SENDER.sendGroupMsg(groupMsg.getGroupCode(),
-                        CQ_AT + groupMsg.getQQCode() + "] 锅里没有一滴油");
+                        CQ_AT + groupMsg.getQQCode() + "] 没有记录");
             }
         } else {
             privateMsg = (PrivateMsg) msg;
@@ -285,20 +290,20 @@ public class HorseRunListener {
                 String isSign = Boolean.TRUE.equals(scores.getiSign()) ? "" : "，还没有签到哦";
                 sender.SENDER.sendPrivateMsg(privateMsg.getQQCode(), "有" + scores.getScore() + "块钱" + isSign);
             } else {
-                sender.SENDER.sendPrivateMsg(privateMsg.getQQCode(), "锅里没有一滴油");
+                sender.SENDER.sendPrivateMsg(privateMsg.getQQCode(), "没有记录");
             }
         }
     }
 
     @Listen(MsgGetTypes.groupMsg)
-    @Filter(value = {"#财富榜.*"}, at = true)
+    @Filter(value = "#财富榜")
     public void rank(GroupMsg msg, MsgSender sender) {
         StringBuilder sb = new StringBuilder();
         sb.append("群友财富榜\n");
         List<Scores> list = scoresService.rank("%" + msg.getGroupCode() + "%");
         for (int i = 0; i < list.size(); i++) {
             GroupMemberInfo info = sender.GETTER.getGroupMemberInfo(msg.getGroupCode(), String.valueOf(list.get(i).getQQ()));
-            sb.append(i + 1).append(". ").append(info.getCard()).append(" 余额：").append(list.get(i).getScore()).append("\n");
+            sb.append(i + 1).append(". ").append(dealCard(info.getCard())).append(" 余额：").append(list.get(i).getScore()).append("\n");
         }
         sender.SENDER.sendGroupMsg(msg.getGroupCode(), sb.toString().trim());
     }

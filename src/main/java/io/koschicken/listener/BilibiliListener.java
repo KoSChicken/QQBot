@@ -35,7 +35,7 @@ public class BilibiliListener {
     //查询UP主
     @Listen(MsgGetTypes.groupMsg)
     @Filter(value = {"#UP主", "#up主"}, keywordMatchType = KeywordMatchType.TRIM_STARTS_WITH)
-    public void searchUp(GroupMsg msg, MsgSender sender) throws IOException {
+    public void searchUp(GroupMsg msg, MsgSender sender) {
         String mid = msg.getMsg().substring(4).trim();
         BilibiliUser bilibiliUser = new BilibiliUser(mid);
         String message = "UP主：" + bilibiliUser.getUname();
