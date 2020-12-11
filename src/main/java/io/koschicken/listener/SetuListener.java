@@ -14,6 +14,7 @@ import io.koschicken.database.service.ScoresService;
 import org.apache.commons.io.FileUtils;
 import org.apache.commons.lang3.RandomUtils;
 import org.apache.commons.lang3.StringUtils;
+import org.apache.http.HttpResponse;
 import org.apache.http.client.fluent.Request;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -23,9 +24,13 @@ import org.springframework.stereotype.Service;
 import java.io.File;
 import java.io.IOException;
 import java.io.InputStream;
+import java.nio.file.Files;
+import java.nio.file.Path;
+import java.nio.file.Paths;
 import java.time.LocalDateTime;
 import java.util.HashMap;
 import java.util.List;
+import java.util.UUID;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
@@ -38,6 +43,10 @@ public class SetuListener {
     private static final String TEMP = "./temp/SETU/";
     private static final String ARTWORK_PREFIX = "https://www.pixiv.net/artworks/";
     private static final String ARTIST_PREFIX = "https://www.pixiv.net/users/";
+    private static final String AWSL = "https://setu.awsl.ee/api/setu!";
+    private static final String MJX = "https://api.66mz8.com/api/rand.tbimg.php?format=pic";
+    private static final String UA = "User-Agent";
+    private static final String UA_STRING = "Mozilla/5.0 (Windows; U; Windows NT 5.1; zh-CN; rv:1.9.0.3) Gecko/2008092417 Firefox/3.0.3";
     private static final int CD = 20;
     private static final HashMap<String, Integer> NUMBER;
     private static HashMap<String, HashMap<String, LocalDateTime>> coolDown;
@@ -174,7 +183,7 @@ public class SetuListener {
 
     @Listen(MsgGetTypes.privateMsg)
     @Filter(value = {"叫车(.*)(.*)?(|r18)", "来(.*?)[点丶份张幅](.*?)的?(|r18)[色瑟涩][图圖]"})
-    public void config(PrivateMsg msg, MsgSender sender) {
+    public void siche(PrivateMsg msg, MsgSender sender) {
         if (isCool(msg.getQQ(), "0")) {
             if (!CAN_SEND_IMAGE) {
                 sender.SENDER.sendGroupMsg(msg.getQQCode(), "机器人还不能发图片");
@@ -235,6 +244,41 @@ public class SetuListener {
             }
         } else {
             sender.SENDER.sendPrivateMsg(msg.getQQCode(), "叫车CD中...");
+        }
+    }
+
+    @Listen(MsgGetTypes.groupMsg)
+    @Filter(value = "#awsl")
+    public void awsl(GroupMsg msg, MsgSender sender) throws IOException {
+        String groupCode = msg.getGroupCode();
+        if (isCool(msg.getQQ(), groupCode)) {
+            HttpResponse httpResponse = Request.Get(AWSL).addHeader(UA, UA_STRING).execute().returnResponse();
+            InputStream content = httpResponse.getEntity().getContent();
+            String uuid = UUID.randomUUID().toString();
+            Path path = Paths.get(TEMP + uuid + ".jpg");
+            Files.copy(content, path);
+            CQCode cqCodeImage = CQCodeUtil.build().getCQCode_Image(path.toAbsolutePath().toString());
+            sender.SENDER.sendGroupMsg(groupCode, cqCodeImage.toString());
+        } else {
+            sender.SENDER.sendGroupMsg(groupCode, "CD中...");
+        }
+    }
+
+    @Listen(MsgGetTypes.groupMsg)
+    @Filter(value = "#mjx")
+    public void mjx(GroupMsg msg, MsgSender sender) throws IOException {
+        String groupCode = msg.getGroupCode();
+        if (isCool(msg.getQQ(), groupCode)) {
+            InputStream content = Request.Get(MJX)
+                    .setHeader(UA, UA_STRING)
+                    .execute().returnResponse().getEntity().getContent();
+            String uuid = UUID.randomUUID().toString();
+            Path path = Paths.get(TEMP + uuid + ".jpg");
+            Files.copy(content, path);
+            CQCode cqCodeImage = CQCodeUtil.build().getCQCode_Image(path.toAbsolutePath().toString());
+            sender.SENDER.sendGroupMsg(groupCode, cqCodeImage.toString());
+        } else {
+            sender.SENDER.sendGroupMsg(groupCode, "CD中...");
         }
     }
 
@@ -330,7 +374,7 @@ public class SetuListener {
                             pic = new File(TEMP + filename);
                         }
                         InputStream content = Request.Get(imageUrl)
-                                .setHeader("User-Agent", "Mozilla/5.0 (Windows; U; Windows NT 5.1; zh-CN; rv:1.9.0.3) Gecko/2008092417 Firefox/3.0.3")
+                                .setHeader(UA, UA_STRING)
                                 .execute().returnResponse().getEntity().getContent();
                         if (!pic.exists()) {
                             FileUtils.copyInputStreamToFile(content, pic);
